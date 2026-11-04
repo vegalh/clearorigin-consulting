@@ -29,6 +29,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Native pickers (date/time popups, checkboxes) stay light and pick up the accent. */
+  color-scheme: light;
+  accent-color: var(--color-co-orange-dark);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -36,6 +40,63 @@ body {
   color: var(--color-co-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Dropdowns (see components/ui/Select.tsx). The closed control is styled with
+ * utilities; here we theme the option list. Browsers without customizable
+ * select fall back to their native list, with on-palette option colors where
+ * the platform allows it.
+ */
+.co-select option {
+  background-color: var(--color-co-paper);
+  color: var(--color-co-ink);
+}
+
+@supports (appearance: base-select) {
+  .co-select,
+  .co-select::picker(select) {
+    appearance: base-select;
+  }
+
+  .co-select::picker-icon {
+    display: none;
+  }
+
+  .co-select::picker(select) {
+    margin-block: 6px;
+    max-height: min(20rem, 60vh);
+    overflow-y: auto;
+    padding: 6px;
+    border: 1px solid var(--color-co-line);
+    border-radius: var(--radius-co-md);
+    background-color: var(--color-co-paper);
+    box-shadow: 0 12px 32px rgba(68, 51, 43, 0.14);
+  }
+
+  .co-select option {
+    padding: 8px 12px;
+    border-radius: var(--radius-co-sm);
+    font-size: 0.875rem;
+    font-weight: 400;
+    cursor: pointer;
+  }
+
+  .co-select option::checkmark {
+    display: none;
+  }
+
+  .co-select option:hover,
+  .co-select option:focus-visible {
+    background-color: color-mix(in srgb, var(--color-co-pale) 50%, transparent);
+    outline: none;
+  }
+
+  .co-select option:checked {
+    background-color: var(--color-co-pale);
+    color: var(--color-co-orange-dark);
+    font-weight: 600;
+  }
 }
 
 /* Keep motion subtle and purposeful, never decorative. */

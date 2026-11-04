@@ -42,13 +42,13 @@ export function HomePage() {
   const { data } = useAppData();
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16">
-      <section className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
+      <section className="grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-2">
         <div>
           <span className="inline-flex rounded-full bg-co-sage/25 px-3 py-1 text-xs font-medium text-co-sage-dark">
             Interactive prototype
           </span>
-          <h1 className="mt-5 font-serif text-4xl font-medium tracking-tight text-co-ink sm:text-5xl">
+          <h1 className="mt-5 font-serif text-[2rem] font-medium leading-tight tracking-tight text-co-ink sm:text-5xl">
             Every conversation takes you somewhere.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-co-muted">
@@ -56,7 +56,7 @@ export function HomePage() {
             &mdash; the kind of unhurried, human exchange that actually builds fluency. This prototype shows what
             finding a time and booking that conversation could feel like.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <ButtonLink to="/instructors" variant="primary">
               Start a Conversation
             </ButtonLink>
@@ -87,7 +87,7 @@ export function HomePage() {
         </Card>
       </section>
 
-      <section className="mt-20">
+      <section className="mt-14 sm:mt-20">
         <h2 className="font-serif text-2xl font-medium tracking-tight text-co-ink">Our learning philosophy</h2>
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
           {philosophy.map((item) => (
@@ -99,8 +99,8 @@ export function HomePage() {
         </div>
       </section>
 
-      <section id="featured-instructors" className="mt-20 scroll-mt-8">
-        <div className="flex items-end justify-between">
+      <section id="featured-instructors" className="mt-14 scroll-mt-8 sm:mt-20">
+        <div className="flex items-end justify-between gap-4">
           <h2 className="font-serif text-2xl font-medium tracking-tight text-co-ink">Featured instructors</h2>
           <ButtonLink to="/instructors" variant="ghost" size="sm">
             See all
@@ -126,7 +126,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="mt-20 rounded-co-lg border border-co-line bg-co-paper p-8">
+      <section className="mt-14 rounded-co-lg border border-co-line bg-co-paper p-6 sm:mt-20 sm:p-8">
         <h2 className="font-serif text-2xl font-medium tracking-tight text-co-ink">How booking works</h2>
         <ol className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {bookingSteps.map((step, index) => (
@@ -141,7 +141,7 @@ export function HomePage() {
         </ol>
       </section>
 
-      <section className="mt-12 rounded-co-lg border border-co-line bg-co-paper p-8 text-sm leading-relaxed text-co-muted">
+      <section className="mt-10 rounded-co-lg border border-co-line bg-co-paper p-6 text-sm sm:mt-12 sm:p-8 leading-relaxed text-co-muted">
         <p>
           <strong className="text-co-ink">Prototype disclaimer:</strong> instructors, availability, and pricing
           shown throughout this prototype are fictional demo data created to demonstrate the booking experience.

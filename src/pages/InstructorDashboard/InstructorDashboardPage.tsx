@@ -36,10 +36,10 @@ export function InstructorDashboardPage() {
   if (!instructor) return null;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-14">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-medium tracking-tight text-co-ink">
+          <h1 className="font-serif text-2xl font-medium tracking-tight sm:text-3xl text-co-ink">
             Welcome back, {instructor.name.split(' ')[0]}
           </h1>
           <p className="mt-2 text-sm text-co-muted">Your Teaching Studio, acting as {instructor.name}.</p>
@@ -49,20 +49,20 @@ export function InstructorDashboardPage() {
         </ButtonLink>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-3 sm:gap-4">
         <Card>
           <p className="text-xs font-medium uppercase tracking-wide text-co-muted">Today</p>
-          <p className="mt-2 text-3xl font-semibold text-co-ink">{todayCount}</p>
+          <p className="mt-2 text-2xl font-semibold text-co-ink sm:text-3xl">{todayCount}</p>
           <p className="mt-1 text-xs text-co-muted">confirmed session{todayCount === 1 ? '' : 's'}</p>
         </Card>
         <Card>
           <p className="text-xs font-medium uppercase tracking-wide text-co-muted">Completed</p>
-          <p className="mt-2 text-3xl font-semibold text-co-ink">{completedCount}</p>
+          <p className="mt-2 text-2xl font-semibold text-co-ink sm:text-3xl">{completedCount}</p>
           <p className="mt-1 text-xs text-co-muted">total sessions held</p>
         </Card>
         <Card>
           <p className="text-xs font-medium uppercase tracking-wide text-co-muted">Cancelled</p>
-          <p className="mt-2 text-3xl font-semibold text-co-ink">{cancelledCount}</p>
+          <p className="mt-2 text-2xl font-semibold text-co-ink sm:text-3xl">{cancelledCount}</p>
           <p className="mt-1 text-xs text-co-muted">total cancellations</p>
         </Card>
       </div>
@@ -80,7 +80,7 @@ export function InstructorDashboardPage() {
             const student = data.students.find((s) => s.id === booking.studentId);
             return (
               <Card key={booking.id} className="flex flex-wrap items-center justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <p className="font-medium text-co-ink">
                     {sessionType?.name} with {student?.fullName ?? 'a student'}
                   </p>

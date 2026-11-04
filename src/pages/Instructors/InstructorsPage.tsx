@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ButtonLink } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Select } from '@/components/ui/Select';
 import { useAppData } from '@/state/AppDataContext';
 
 export function InstructorsPage() {
@@ -19,24 +20,24 @@ export function InstructorsPage() {
   }, [data.instructors, languageFilter]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-14">
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-medium tracking-tight text-co-ink">Find your conversation partner.</h1>
+          <h1 className="font-serif text-2xl font-medium tracking-tight sm:text-3xl text-co-ink">Find your conversation partner.</h1>
           <p className="mt-2 text-sm text-co-muted">
             {filteredInstructors.length} instructor{filteredInstructors.length === 1 ? '' : 's'} available
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <label htmlFor="language-filter" className="text-xs font-medium text-co-muted">
+        <div className="flex w-full items-center gap-3 sm:w-auto">
+          <label htmlFor="language-filter" className="shrink-0 text-xs font-medium text-co-muted">
             Language
           </label>
-          <select
+          <Select
             id="language-filter"
             value={languageFilter}
             onChange={(e) => setLanguageFilter(e.target.value)}
-            className="rounded-full border border-co-line bg-co-paper px-3 py-2 text-sm text-co-ink"
+            wrapperClassName="flex-1 sm:w-48 sm:flex-none"
           >
             <option value="all">All languages</option>
             {languages.map((lang) => (
@@ -44,11 +45,11 @@ export function InstructorsPage() {
                 {lang}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {filteredInstructors.map((instructor) => (
           <Card key={instructor.id} className="flex flex-col gap-4">
             <div className="flex items-center gap-3">

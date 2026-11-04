@@ -24,11 +24,11 @@ export function BookingSuccessPage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl px-6 py-16 text-center">
+    <div className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-16 text-center">
       <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-co-sage/25 text-co-sage-dark">
         <CheckCircle2 className="h-7 w-7" />
       </span>
-      <h1 className="mt-5 font-serif text-3xl font-medium tracking-tight text-co-ink">You're all set.</h1>
+      <h1 className="mt-5 font-serif text-2xl font-medium tracking-tight sm:text-3xl text-co-ink">You're all set.</h1>
       <p className="mt-2 text-sm text-co-muted">A confirmation has been saved to this browser's demo data.</p>
 
       <Card className="mt-8 text-left">

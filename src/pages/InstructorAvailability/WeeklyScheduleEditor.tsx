@@ -3,6 +3,7 @@ import type { RecurringAvailability, Weekday } from '@/types';
 import { WEEKDAY_LABELS } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { inputClass } from '@/components/ui/fieldStyles';
 
 interface DayRow {
   weekday: Weekday;
@@ -64,33 +65,36 @@ export function WeeklyScheduleEditor({
       <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Weekly recurring schedule</h2>
       <div className="mt-4 space-y-3">
         {rows.map((row) => (
-          <div key={row.weekday} className="flex flex-wrap items-center gap-3 border-b border-co-line pb-3 last:border-0">
-            <label className="flex w-36 items-center gap-2 text-sm font-medium text-co-ink">
+          <div key={row.weekday} className="flex flex-col gap-2 border-b border-co-line pb-3 last:border-0 sm:flex-row sm:items-center sm:gap-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-co-ink sm:w-36 sm:shrink-0">
               <input
                 type="checkbox"
+                className="h-4 w-4 rounded"
                 checked={row.enabled}
                 onChange={(e) => updateRow(row.weekday, { enabled: e.target.checked })}
               />
               {WEEKDAY_LABELS[row.weekday]}
             </label>
             {row.enabled ? (
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm sm:w-auto">
                 <input
                   type="time"
                   value={row.startTime}
+                  aria-label={`${WEEKDAY_LABELS[row.weekday]} start time`}
                   onChange={(e) => updateRow(row.weekday, { startTime: e.target.value })}
-                  className="rounded-co-sm border border-co-line bg-co-paper px-2 py-1"
+                  className={`${inputClass} min-w-0 flex-1 py-1.5 sm:w-32 sm:flex-none`}
                 />
                 <span className="text-co-muted">to</span>
                 <input
                   type="time"
                   value={row.endTime}
+                  aria-label={`${WEEKDAY_LABELS[row.weekday]} end time`}
                   onChange={(e) => updateRow(row.weekday, { endTime: e.target.value })}
-                  className="rounded-co-sm border border-co-line bg-co-paper px-2 py-1"
+                  className={`${inputClass} min-w-0 flex-1 py-1.5 sm:w-32 sm:flex-none`}
                 />
               </div>
             ) : (
-              <span className="text-sm text-co-muted">Unavailable</span>
+              <span className="pl-6 text-sm text-co-muted sm:pl-0">Unavailable</span>
             )}
           </div>
         ))}

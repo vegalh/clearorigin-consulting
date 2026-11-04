@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useAppData } from '@/state/AppDataContext';
 import { ButtonLink } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 
 const studentNavLinks = [
   { to: '/instructors', label: 'Find an Instructor' },
@@ -13,7 +14,7 @@ const instructorNavLinks = [
 ];
 
 function navLinkClass(isActive: boolean): string {
-  return `text-sm font-medium transition-colors ${isActive ? 'text-co-orange-dark' : 'text-co-muted hover:text-co-ink'}`;
+  return `whitespace-nowrap text-sm font-medium transition-colors ${isActive ? 'text-co-orange-dark' : 'text-co-muted hover:text-co-ink'}`;
 }
 
 export function Header() {
@@ -22,38 +23,45 @@ export function Header() {
 
   return (
     <header className="border-b border-co-line bg-co-paper">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-        <NavLink to="/" className="flex items-center gap-2">
+      {/*
+        Mobile: logo + role toggle on the first row, nav (+ instructor picker) on a
+        second full-width row. md+: a single row with nav beside the logo.
+      */}
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6 sm:py-4">
+        <NavLink to="/" aria-label="ClearOrigin home" className="order-1 flex shrink-0 items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-co-ink text-sm font-semibold text-co-bg">
             CO
           </span>
-          <span className="font-serif text-base font-medium tracking-tight text-co-ink">ClearOrigin</span>
+          <span className="font-serif text-base font-medium tracking-tight text-co-ink max-[359px]:hidden">ClearOrigin</span>
         </NavLink>
 
-        <nav className="flex items-center gap-6">
-          {links.map((link) => (
-            <NavLink key={link.to} to={link.to} className={({ isActive }) => navLinkClass(isActive)}>
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="order-3 flex w-full min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-co-line pt-3 md:order-2 md:w-auto md:flex-1 md:border-0 md:pt-0">
+          <nav className="flex items-center gap-5 sm:gap-6">
+            {links.map((link) => (
+              <NavLink key={link.to} to={link.to} className={({ isActive }) => navLinkClass(isActive)}>
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
 
-        <div className="flex flex-wrap items-center justify-end gap-3">
           {role === 'instructor' && (
-            <select
+            <Select
               aria-label="Acting as instructor"
+              size="sm"
               value={currentInstructorId}
               onChange={(e) => setCurrentInstructorId(e.target.value)}
-              className="max-w-[9.5rem] rounded-full border border-co-line bg-co-paper px-3 py-2 text-xs text-co-ink sm:max-w-none"
+              wrapperClassName="w-full sm:w-auto"
             >
               {data.instructors.map((instructor) => (
                 <option key={instructor.id} value={instructor.id}>
                   Acting as {instructor.name}
                 </option>
               ))}
-            </select>
+            </Select>
           )}
+        </div>
 
+        <div className="order-2 flex items-center gap-3 md:order-3">
           <div className="flex items-center rounded-full border border-co-line p-1 text-xs">
             <button
               type="button"
@@ -78,7 +86,7 @@ export function Header() {
           </div>
 
           {role === 'student' && (
-            <ButtonLink to="/instructors" variant="primary" size="sm" className="hidden sm:inline-flex">
+            <ButtonLink to="/instructors" variant="primary" size="sm" className="max-sm:hidden">
               Book a Session
             </ButtonLink>
           )}

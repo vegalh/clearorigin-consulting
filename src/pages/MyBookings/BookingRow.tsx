@@ -42,7 +42,7 @@ export function BookingRow({ booking }: { booking: Booking }) {
   return (
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <p className="font-medium text-co-ink">
             {sessionType.name} with {instructor.name}
           </p>
@@ -56,7 +56,7 @@ export function BookingRow({ booking }: { booking: Booking }) {
       </div>
 
       {canModify && (
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -81,7 +81,7 @@ export function BookingRow({ booking }: { booking: Booking }) {
             <SlotPicker slots={slots} timezone={viewerTimezone} selected={newSlot} onSelect={setNewSlot} />
           </div>
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-          <Button variant="primary" size="sm" className="mt-3" disabled={!newSlot} onClick={handleConfirmReschedule}>
+          <Button variant="primary" size="sm" className="mt-3 w-full sm:w-auto" disabled={!newSlot} onClick={handleConfirmReschedule}>
             Confirm new time
           </Button>
         </div>

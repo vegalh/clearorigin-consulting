@@ -5,7 +5,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-co-line bg-co-paper">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-xs text-co-muted sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-xs sm:px-6 text-co-muted sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-2xl leading-relaxed">
           This is an interactive prototype built to demonstrate a booking experience for{' '}
           <a
