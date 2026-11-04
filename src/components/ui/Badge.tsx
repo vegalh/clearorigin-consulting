@@ -1,29 +1,50 @@
 import type { ReactNode } from 'react';
 import type { BookingStatus } from '@/types';
+import { bookingStatusDescriptors, type StatusDescriptor, type StatusTone } from '@/lib/checkout';
 
-const statusClasses: Record<BookingStatus, string> = {
-  confirmed: 'bg-co-sage/25 text-co-sage-dark',
-  cancelled: 'bg-co-line text-co-muted line-through',
-  completed: 'bg-co-ink/5 text-co-muted',
+const toneClasses: Record<StatusTone, string> = {
+  success: 'bg-co-sage/25 text-co-sage-dark',
+  pending: 'bg-co-pale/70 text-co-orange-dark',
+  warning: 'bg-co-clay/15 text-co-clay',
+  neutral: 'bg-co-ink/5 text-co-muted',
+  muted: 'bg-co-line text-co-muted',
 };
 
-const statusLabels: Record<BookingStatus, string> = {
-  confirmed: 'Confirmed',
-  cancelled: 'Cancelled',
-  completed: 'Completed',
-};
-
-export function StatusBadge({ status }: { status: BookingStatus }) {
+/** A small rounded status label. `prefix` (e.g. "Booking", "Payment") keeps different statuses distinguishable. */
+export function StatusPill({ descriptor, prefix }: { descriptor: StatusDescriptor; prefix?: string }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${statusClasses[status]}`}>
-      {statusLabels[status]}
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${toneClasses[descriptor.tone]}`}>
+      {prefix && <span className="font-normal opacity-75">{prefix}:</span>}
+      {descriptor.label}
     </span>
   );
+}
+
+export function StatusBadge({ status, prefix }: { status: BookingStatus; prefix?: string }) {
+  return <StatusPill descriptor={bookingStatusDescriptors[status]} prefix={prefix} />;
 }
 
 export function Badge({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <span className={`inline-flex items-center rounded-full bg-co-sage/25 px-3 py-1 text-xs font-medium text-co-sage-dark ${className}`}>
+      {children}
+    </span>
+  );
+}
+
+/** Marks content (copy, prices, policy) that ClearOrigin has not yet approved. */
+export function DraftLabel({ children = 'Draft — pending ClearOrigin confirmation' }: { children?: ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-dashed border-co-clay/50 px-2.5 py-0.5 text-[11px] font-medium text-co-clay">
+      {children}
+    </span>
+  );
+}
+
+/** Labels anything simulated in the prototype (payments, meetings). */
+export function DemoLabel({ children = 'Demo' }: { children?: ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full bg-co-ink px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-co-bg">
       {children}
     </span>
   );

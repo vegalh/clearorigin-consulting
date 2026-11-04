@@ -1,10 +1,17 @@
 import { useAppData } from '@/state/AppDataContext';
 import { WeeklyScheduleEditor } from './WeeklyScheduleEditor';
 import { ExceptionsEditor } from './ExceptionsEditor';
+import { MeetingSettings } from './MeetingSettings';
 
 export function InstructorAvailabilityPage() {
-  const { data, currentInstructorId, replaceRecurringAvailability, addAvailabilityException, removeAvailabilityException } =
-    useAppData();
+  const {
+    data,
+    currentInstructorId,
+    replaceRecurringAvailability,
+    addAvailabilityException,
+    removeAvailabilityException,
+    setMeetingProvider,
+  } = useAppData();
 
   const instructor = data.instructors.find((i) => i.id === currentInstructorId);
   if (!instructor) return null;
@@ -30,6 +37,10 @@ export function InstructorAvailabilityPage() {
           exceptions={data.availabilityExceptions}
           onAdd={addAvailabilityException}
           onRemove={removeAvailabilityException}
+        />
+        <MeetingSettings
+          provider={data.meetingConfigurations.find((m) => m.instructorId === instructor.id)?.provider ?? 'zoom'}
+          onChange={(provider) => setMeetingProvider(instructor.id, provider)}
         />
       </div>
     </div>

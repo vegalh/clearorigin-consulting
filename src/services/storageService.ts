@@ -1,45 +1,61 @@
 import type { AppData } from '@/types';
-import { SCHEMA_VERSION } from '@/types';
 import { createSeedData } from '@/data/seed';
+import { migrateToLatest } from './migrations';
 
-const STORAGE_KEY = 'clearorigin-booking-prototype:data';
+export const STORAGE_KEY = 'clearorigin-booking-prototype:data';
+export const BACKUP_KEY_PREFIX = 'clearorigin-booking-prototype:backup:';
 
 /**
  * Thin localStorage persistence layer.
  *
  * LIMITATION (documented, not hidden): this is single-device, single-browser
- * storage. It cannot provide real cross-user or cross-device locking, so two
- * different browsers booking the same instructor at the same instant could
- * both "succeed" from their own point of view. A production backend (see
- * docs/PROTOTYPE_PLAN.md §8) needs transactional writes to fix this.
+ * storage. Checkout holds stored here keep two tabs of the same browser from
+ * double-booking, but they cannot stop another person on another device from
+ * picking the same time. A production backend (see docs/BOOKING_V3_PLAN.md
+ * §5) needs server-authoritative holds and transactional writes.
  */
 export const storageService = {
   load(): AppData {
+    let raw: string | null = null;
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        return this.reset();
+      raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return this.reset();
+      const result = migrateToLatest(JSON.parse(raw));
+      if (result.ok) {
+        if (result.migratedFrom !== undefined) {
+          // Keep the pre-migration copy so a bad migration never loses data.
+          this.backup(raw, `v${result.migratedFrom}`);
+          this.save(result.data);
+        }
+        return result.data;
       }
-      const parsed = JSON.parse(raw) as AppData;
-      if (!parsed || parsed.schemaVersion !== SCHEMA_VERSION) {
-        // Shape changed since this was saved — start fresh rather than risk
-        // working with data the rest of the app doesn't understand.
-        return this.reset();
-      }
-      return parsed;
     } catch {
-      return this.reset();
+      // fall through: unreadable JSON
     }
+    if (raw) this.backup(raw, 'unreadable');
+    return this.reset();
   },
 
   save(data: AppData): void {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch {
+      // Storage full or blocked (private mode): keep working in memory.
+    }
+  },
+
+  backup(raw: string, label: string): void {
+    try {
+      window.localStorage.setItem(`${BACKUP_KEY_PREFIX}${label}:${Date.now()}`, raw);
+    } catch {
+      // Best effort only.
+    }
   },
 
   /** Restore the original fictional seed data, discarding all prototype changes. */
   reset(): AppData {
     const fresh = createSeedData(new Date());
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+    this.save(fresh);
     return fresh;
   },
 };

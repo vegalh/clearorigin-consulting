@@ -37,11 +37,24 @@ test.describe('Instructor availability editing', () => {
   test('instructor dashboard shows stats and upcoming sessions', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Instructor', exact: true }).click();
-    await page.getByRole('link', { name: 'Dashboard' }).click();
+    await page.getByRole('link', { name: 'Teaching Studio' }).click();
 
     await expect(page.getByRole('heading', { name: /Welcome back/ })).toBeVisible();
-    await expect(page.getByText('Today')).toBeVisible();
-    await expect(page.getByText('Completed')).toBeVisible();
-    await expect(page.getByText('Cancelled')).toBeVisible();
+    await expect(page.getByText('Today', { exact: true })).toBeVisible();
+    await expect(page.getByText('In checkout', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Weekly availability' })).toBeVisible();
+
+    // Booking and payment status are shown separately for each appointment.
+    await expect(page.getByText('Booking:').first()).toBeVisible();
+    await expect(page.getByText(/Payment:\s*Package credit$/)).toBeVisible();
+  });
+
+  test('instructor can set a preferred meeting platform', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Instructor', exact: true }).click();
+    await page.getByRole('link', { name: 'Availability' }).click();
+    await page.getByText('Google Meet', { exact: true }).click();
+    await page.getByRole('link', { name: 'Teaching Studio' }).click();
+    await expect(page.getByRole('heading', { name: 'Meeting platform' }).locator('..').getByText('Google Meet')).toBeVisible();
   });
 });

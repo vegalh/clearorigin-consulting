@@ -16,8 +16,9 @@ export function Footer() {
           >
             ClearOrigin Consulting
           </a>
-          . Instructors, availability, and bookings shown here are fictional demo data stored only in this
-          browser — no real sessions are scheduled and no real meeting links are created.
+          . Instructors, courses, prices, availability, and bookings shown here are fictional demo data stored only in this
+          browser. Payments are simulated — no real money moves, no payment details are collected, and no real meeting links are
+          created.
         </p>
         <button
           type="button"

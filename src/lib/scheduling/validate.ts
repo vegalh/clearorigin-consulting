@@ -1,13 +1,14 @@
 import type { AvailabilityException, Booking, Instructor, RecurringAvailability, TimeSlot } from '@/types';
 import { resolveLocalWindowsForDate } from './availability';
 import { localDateString, localWeekday, zonedWallTimeToUtc } from './timezone';
+import { blocksSlot } from './blocking';
 
 export interface ValidateSlotParams {
   instructor: Instructor;
   slot: TimeSlot;
   recurringRules: RecurringAvailability[];
   exceptions: AvailabilityException[];
-  /** All bookings for the instructor (any status) — filtered internally to 'confirmed'. */
+  /** All bookings for the instructor (any status) — filtered internally to those that block a slot. */
   existingBookings: Booking[];
   now?: Date;
   /** Exclude this booking id from the conflict check (used when rescheduling). */
@@ -19,7 +20,7 @@ export type ValidationResult = { ok: true } | { ok: false; reason: string };
 /**
  * Revalidate that a requested slot is still bookable "right now": in the
  * future, inside an available window, and not overlapping any other
- * confirmed booking. Used both when confirming a new booking and when
+ * confirmed booking or active hold. Used both when confirming a new booking and when
  * confirming a reschedule, per the booking engine's data rules.
  */
 export function validateSlot(params: ValidateSlotParams): ValidationResult {
@@ -57,7 +58,7 @@ export function validateSlot(params: ValidateSlotParams): ValidationResult {
   }
 
   const conflict = existingBookings.some((booking) => {
-    if (booking.status !== 'confirmed') return false;
+    if (!blocksSlot(booking, now)) return false;
     if (booking.id === ignoreBookingId) return false;
     const bookingStart = new Date(booking.startAtUtc).getTime();
     const bookingEnd = new Date(booking.endAtUtc).getTime();

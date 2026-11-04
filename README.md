@@ -3,18 +3,24 @@
 An interactive, locally-runnable prototype of a booking experience for
 **[ClearOrigin Consulting](https://clearoriginconsulting.com)**, a real
 Chinese-language conversation-practice business. It demonstrates what
-students and instructors could do if ClearOrigin added self-serve session
-booking to its site: browsing instructors, picking a real available time in
-your own timezone, confirming a session, and managing/rescheduling/cancelling
-bookings — plus an instructor-side dashboard and availability editor.
+students, parents and instructors could do with self-serve booking: exploring
+courses and demo pricing, browsing instructor qualifications, a course-first
+booking flow (Course → Schedule → Details → Payment → Confirmation) with
+temporary holds and a **simulated** checkout, package credits, managing /
+rescheduling / cancelling lessons, an FAQ, and an instructor Teaching Studio
+with separate booking and payment status.
 
-> **This is a prototype, not a production app.** All instructors, pricing,
-> and bookings are fictional demo data generated on first load and stored
-> only in your browser's `localStorage`. No accounts, no real emails, no real
-> meeting links, and no real money are involved. See
-> [docs/PROTOTYPE_PLAN.md](./docs/PROTOTYPE_PLAN.md) and
-> [docs/COMPLETION_REPORT.md](./docs/COMPLETION_REPORT.md) for the full design
-> rationale, booking-engine details, and a path to a real backend.
+> **This is a prototype, not a production app.** All instructors, courses,
+> pricing, policies and bookings are fictional or draft demo data stored only
+> in your browser's `localStorage`. Payments are simulated (no payment details
+> are ever requested), no real meeting links are created, and holds only
+> protect a time slot within this browser. See
+> [docs/BOOKING_V3_PLAN.md](./docs/BOOKING_V3_PLAN.md) and
+> [docs/BOOKING_V3_REPORT.md](./docs/BOOKING_V3_REPORT.md) for the V3
+> architecture, state model and limitations, and
+> [docs/PROTOTYPE_PLAN.md](./docs/PROTOTYPE_PLAN.md) /
+> [docs/COMPLETION_REPORT.md](./docs/COMPLETION_REPORT.md) for the original
+> booking-engine design.
 
 ## Tech stack
 
@@ -46,16 +52,19 @@ Then open the printed local URL (typically `http://localhost:5173`).
 
 ## Trying it out
 
-- **As a student**: start on the home page → *Find an Instructor* → open a
-  profile → choose a session length → pick a time (shown in your chosen
-  timezone) → confirm with your name/email → see the success page and
-  download an `.ics` calendar file. Visit *My Bookings* to cancel or
-  reschedule.
+- **As a student or parent**: *Book a Trial Lesson* on the home page (or pick
+  anything on *Courses & Pricing*) → choose an instructor and a time (in your
+  timezone) → add learner details (yourself, or your child as a guardian) →
+  your time is held for 10 minutes while you check out → pick a demo payment
+  method and a *demo outcome* (success / failure / cancel / timeout) → see the
+  confirmation and download an `.ics` file. *My Learning Space* shows payment
+  and meeting-link status, package credits, and lets you reschedule or cancel
+  (with the draft policy shown first).
 - **As an instructor**: use the **Student / Instructor** toggle in the header,
-  pick who you're "acting as," then visit *Dashboard* (stats + upcoming
-  sessions) and *Availability* (weekly recurring hours + one-off date
-  exceptions). Changes save instantly and are immediately reflected on the
-  student-facing profile page.
+  pick who you're "acting as," then visit *Teaching Studio* (booking, payment
+  and meeting status per appointment) and *Availability* (weekly hours,
+  date exceptions, preferred meeting platform). Changes apply immediately to
+  what students see.
 - **Reset demo data**: the footer's "Reset demo data" button restores the
   original fictional seed data at any time.
 
@@ -63,14 +72,16 @@ Then open the printed local URL (typically `http://localhost:5173`).
 
 ```
 src/
-  types/            Core TypeScript data model
-  data/              Fictional demo instructors, session types, availability, seed generator
+  types/            Core TypeScript data model (schema v2)
+  config/            Editable copy, FAQ, learner options, and the draft booking policy
+  data/              Fictional demo instructors, courses, session types, availability, seed generator
   lib/scheduling/    Timezone-aware booking engine (pure functions, fully unit-tested)
+  lib/checkout/      Booking/order/payment state machine, money, credits, status labels
   lib/dates, lib/ics, lib/validation   Formatting, calendar export, form validation helpers
-  services/          localStorage persistence + booking/availability service wrappers
+  services/          Checkout lifecycle, mock payment provider, migrations, localStorage persistence
   state/             AppDataContext — single source of truth + mutation actions
   components/        Shared UI primitives, layout, and booking UI
-  pages/             The 8 routed pages
+  pages/             Routed pages (home, courses, instructors, booking wizard, checkout, FAQ, dashboards)
 e2e/                 Playwright end-to-end specs
 docs/                Planning and completion documentation
 ```
@@ -78,6 +89,6 @@ docs/                Planning and completion documentation
 ## Known limitations
 
 This prototype runs entirely client-side. See
-[docs/COMPLETION_REPORT.md](./docs/COMPLETION_REPORT.md#known-limitations)
-for the full list (single-browser storage, simulated meeting links, no real
-auth, etc.) and recommendations for integrating a real backend.
+[docs/BOOKING_V3_REPORT.md](./docs/BOOKING_V3_REPORT.md#5-known-limitations)
+for the full list (browser-only holds, simulated payments and meeting links,
+no real auth, draft content) and the recommended production integration.

@@ -10,7 +10,9 @@ function escapeIcsText(value: string): string {
 }
 
 /** Builds a minimal, standards-compliant .ics file for a single confirmed booking. */
-export function buildBookingIcs(booking: Booking, instructor: Instructor, sessionType: SessionType): string {
+export function buildBookingIcs(booking: Booking, instructor: Instructor, sessionType: SessionType, courseTitle?: string): string {
+  const title = courseTitle ?? sessionType.name;
+  const provider = (booking.meeting?.provider ?? booking.meetingProvider) === 'zoom' ? 'Zoom' : 'Google Meet';
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -21,9 +23,9 @@ export function buildBookingIcs(booking: Booking, instructor: Instructor, sessio
     `DTSTAMP:${toIcsUtc(booking.createdAt)}`,
     `DTSTART:${toIcsUtc(booking.startAtUtc)}`,
     `DTEND:${toIcsUtc(booking.endAtUtc)}`,
-    `SUMMARY:${escapeIcsText(`${sessionType.name} with ${instructor.name} (ClearOrigin prototype)`)}`,
+    `SUMMARY:${escapeIcsText(`${title} with ${instructor.name} (ClearOrigin prototype)`)}`,
     `DESCRIPTION:${escapeIcsText(
-      `${sessionType.description} This is a demo booking created in the ClearOrigin booking prototype; no real meeting link was generated.`,
+      `${sessionType.description} Meeting platform: ${provider}. The meeting link will be shared once it is created. This is a demo booking created in the ClearOrigin booking prototype; no real meeting link was generated.`,
     )}`,
     'END:VEVENT',
     'END:VCALENDAR',

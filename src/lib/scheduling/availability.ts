@@ -8,6 +8,7 @@ import type {
 } from '@/types';
 import { AVAILABILITY_HORIZON_DAYS, SLOT_INTERVAL_MS } from './constants';
 import { addCalendarDays, localDateString, localWeekday, zonedWallTimeToUtc } from './timezone';
+import { blocksSlot } from './blocking';
 
 interface LocalWindow {
   startTime: string; // "HH:mm"
@@ -98,7 +99,7 @@ export interface GenerateSlotsParams {
   sessionType: SessionType;
   recurringRules: RecurringAvailability[];
   exceptions: AvailabilityException[];
-  /** Only 'confirmed' bookings should be passed in — cancelled bookings release their slot. */
+  /** Any bookings — only confirmed ones and unexpired holds block a slot (see `blocksSlot`). */
   existingBookings: Booking[];
   /** Defaults to `new Date()`; pass explicitly in tests for determinism. */
   now?: Date;
@@ -124,7 +125,7 @@ export function generateAvailableSlots(params: GenerateSlotsParams): TimeSlot[] 
 
   const durationMs = sessionType.durationMinutes * 60 * 1000;
   const confirmedBookings = existingBookings.filter(
-    (booking) => booking.status === 'confirmed' && booking.instructorId === instructor.id,
+    (booking) => blocksSlot(booking, now) && booking.instructorId === instructor.id,
   );
   // Defensively scope to this instructor even if the caller passed the full
   // app-wide rule/exception lists — otherwise another instructor's rule for

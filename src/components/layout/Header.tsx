@@ -4,12 +4,14 @@ import { ButtonLink } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 
 const studentNavLinks = [
-  { to: '/instructors', label: 'Find an Instructor' },
-  { to: '/bookings', label: 'My Bookings' },
+  { to: '/courses', label: 'Courses & Pricing' },
+  { to: '/instructors', label: 'Instructors' },
+  { to: '/faq', label: 'FAQ' },
+  { to: '/bookings', label: 'My Learning Space' },
 ];
 
 const instructorNavLinks = [
-  { to: '/instructor/dashboard', label: 'Dashboard' },
+  { to: '/instructor/dashboard', label: 'Teaching Studio' },
   { to: '/instructor/availability', label: 'Availability' },
 ];
 
@@ -35,8 +37,8 @@ export function Header() {
           <span className="font-serif text-base font-medium tracking-tight text-co-ink max-[359px]:hidden">ClearOrigin</span>
         </NavLink>
 
-        <div className="order-3 flex w-full min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-co-line pt-3 md:order-2 md:w-auto md:flex-1 md:border-0 md:pt-0">
-          <nav className="flex items-center gap-5 sm:gap-6">
+        <div className="order-3 flex w-full min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-co-line pt-3 lg:order-2 lg:w-auto lg:flex-1 lg:border-0 lg:pt-0">
+          <nav aria-label="Main" className="no-scrollbar flex min-w-0 max-w-full items-center gap-5 overflow-x-auto lg:gap-6">
             {links.map((link) => (
               <NavLink key={link.to} to={link.to} className={({ isActive }) => navLinkClass(isActive)}>
                 {link.label}
@@ -61,7 +63,7 @@ export function Header() {
           )}
         </div>
 
-        <div className="order-2 flex items-center gap-3 md:order-3">
+        <div className="order-2 flex items-center gap-3 lg:order-3">
           <div className="flex items-center rounded-full border border-co-line p-1 text-xs">
             <button
               type="button"
@@ -86,7 +88,7 @@ export function Header() {
           </div>
 
           {role === 'student' && (
-            <ButtonLink to="/instructors" variant="primary" size="sm" className="max-sm:hidden">
+            <ButtonLink to="/book" variant="primary" size="sm" className="max-sm:hidden">
               Book a Session
             </ButtonLink>
           )}
