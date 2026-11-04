@@ -126,6 +126,12 @@ export function generateAvailableSlots(params: GenerateSlotsParams): TimeSlot[] 
   const confirmedBookings = existingBookings.filter(
     (booking) => booking.status === 'confirmed' && booking.instructorId === instructor.id,
   );
+  // Defensively scope to this instructor even if the caller passed the full
+  // app-wide rule/exception lists — otherwise another instructor's rule for
+  // the same weekday (or an exception that happens to share a date string)
+  // would leak into this instructor's generated availability.
+  const instructorRules = recurringRules.filter((rule) => rule.instructorId === instructor.id);
+  const instructorExceptions = exceptions.filter((exception) => exception.instructorId === instructor.id);
 
   const slots: TimeSlot[] = [];
   const startDate = localDateString(now, instructor.timezone);
@@ -137,7 +143,7 @@ export function generateAvailableSlots(params: GenerateSlotsParams): TimeSlot[] 
     const noonUtcForDate = zonedWallTimeToUtc(dateStr, '12:00', instructor.timezone);
     const weekday = localWeekday(noonUtcForDate, instructor.timezone);
 
-    const windows = resolveLocalWindowsForDate(dateStr, weekday, recurringRules, exceptions);
+    const windows = resolveLocalWindowsForDate(dateStr, weekday, instructorRules, instructorExceptions);
 
     for (const window of windows) {
       const windowStartUtc = zonedWallTimeToUtc(dateStr, window.startTime, instructor.timezone);

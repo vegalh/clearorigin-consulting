@@ -36,10 +36,15 @@ export function validateSlot(params: ValidateSlotParams): ValidationResult {
     return { ok: false, reason: 'That time has already passed. Please choose another slot.' };
   }
 
+  // Defensively scope to this instructor — see the matching comment in
+  // availability.ts for why this must not rely on the caller pre-filtering.
+  const instructorRules = recurringRules.filter((rule) => rule.instructorId === instructor.id);
+  const instructorExceptions = exceptions.filter((exception) => exception.instructorId === instructor.id);
+
   const dateStr = localDateString(new Date(slotStart), instructor.timezone);
   const noonUtcForDate = zonedWallTimeToUtc(dateStr, '12:00', instructor.timezone);
   const weekday = localWeekday(noonUtcForDate, instructor.timezone);
-  const windows = resolveLocalWindowsForDate(dateStr, weekday, recurringRules, exceptions);
+  const windows = resolveLocalWindowsForDate(dateStr, weekday, instructorRules, instructorExceptions);
 
   const fitsInWindow = windows.some((window) => {
     const windowStart = zonedWallTimeToUtc(dateStr, window.startTime, instructor.timezone).getTime();

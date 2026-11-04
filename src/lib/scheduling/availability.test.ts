@@ -229,6 +229,45 @@ describe('generateAvailableSlots', () => {
     expect(afterDst).toBeDefined();
   });
 
+  it('never leaks another instructor\'s rules or exceptions, even when passed the full app-wide lists', () => {
+    const otherInstructorRule: RecurringAvailability = {
+      id: 'other-mon-rule',
+      instructorId: 'some-other-instructor',
+      dayOfWeek: 1,
+      startTime: '01:00',
+      endTime: '02:00',
+    };
+    const otherInstructorException: AvailabilityException = {
+      id: 'other-exc',
+      instructorId: 'some-other-instructor',
+      date: '2026-03-02',
+      type: 'extra_hours',
+      startTime: '23:00',
+      endTime: '23:30',
+    };
+
+    const scopedSlots = generateAvailableSlots({
+      instructor,
+      sessionType: thirtyMinSession,
+      recurringRules: [mondayRule],
+      exceptions: [],
+      existingBookings: [],
+      now,
+      horizonDays: 12,
+    });
+    const unscopedSlots = generateAvailableSlots({
+      instructor,
+      sessionType: thirtyMinSession,
+      recurringRules: [mondayRule, otherInstructorRule],
+      exceptions: [otherInstructorException],
+      existingBookings: [],
+      now,
+      horizonDays: 12,
+    });
+
+    expect(unscopedSlots).toEqual(scopedSlots);
+  });
+
   it('supports 15, 30, 45 and 60 minute durations with correct end times', () => {
     const durations = [15, 30, 45, 60] as const;
     for (const durationMinutes of durations) {

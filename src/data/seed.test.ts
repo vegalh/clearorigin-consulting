@@ -48,7 +48,9 @@ describe('createSeedData', () => {
       now: referenceDate,
     });
 
-    const slotsOnExceptionDate = slots.filter((slot) => slot.startUtc.startsWith(extraHoursException.date));
+    const slotsOnExceptionDate = slots.filter(
+      (slot) => localDateString(new Date(slot.startUtc), liang.timezone) === extraHoursException.date,
+    );
     expect(slotsOnExceptionDate.length).toBe(0);
   });
 
@@ -66,7 +68,9 @@ describe('createSeedData', () => {
       now: referenceDate,
     });
 
-    const slotsOnBlockedDate = slots.filter((slot) => slot.startUtc.startsWith(blockedDay.date));
+    const slotsOnBlockedDate = slots.filter(
+      (slot) => localDateString(new Date(slot.startUtc), maya.timezone) === blockedDay.date,
+    );
     expect(slotsOnBlockedDate.length).toBe(0);
   });
 });

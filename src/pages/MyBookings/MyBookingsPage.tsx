@@ -1,0 +1,73 @@
+import { useMemo, useState } from 'react';
+import { useAppData } from '@/state/AppDataContext';
+import { BookingRow } from './BookingRow';
+
+type Tab = 'upcoming' | 'past' | 'cancelled';
+
+const tabs: { id: Tab; label: string }[] = [
+  { id: 'upcoming', label: 'Upcoming' },
+  { id: 'past', label: 'Past' },
+  { id: 'cancelled', label: 'Cancelled' },
+];
+
+export function MyBookingsPage() {
+  const { data, currentStudentId } = useAppData();
+  const [activeTab, setActiveTab] = useState<Tab>('upcoming');
+
+  const myBookings = useMemo(
+    () => data.bookings.filter((b) => b.studentId === currentStudentId),
+    [data.bookings, currentStudentId],
+  );
+
+  const grouped = useMemo(() => {
+    const now = Date.now();
+    const upcoming = myBookings.filter((b) => b.status === 'confirmed' && new Date(b.startAtUtc).getTime() > now);
+    const past = myBookings.filter(
+      (b) => b.status === 'completed' || (b.status === 'confirmed' && new Date(b.startAtUtc).getTime() <= now),
+    );
+    const cancelled = myBookings.filter((b) => b.status === 'cancelled');
+    return { upcoming, past, cancelled };
+  }, [myBookings]);
+
+  const activeBookings = grouped[activeTab].slice().sort((a, b) => {
+    const diff = new Date(a.startAtUtc).getTime() - new Date(b.startAtUtc).getTime();
+    return activeTab === 'upcoming' ? diff : -diff;
+  });
+
+  const currentStudent = data.students.find((s) => s.id === currentStudentId);
+
+  return (
+    <div className="mx-auto max-w-3xl px-6 py-14">
+      <h1 className="text-3xl font-semibold tracking-tight text-co-ink">My bookings</h1>
+      <p className="mt-2 text-sm text-co-muted">
+        Showing demo bookings for {currentStudent?.fullName ?? 'this browser'}.
+      </p>
+
+      <div className="mt-6 flex gap-2 rounded-full border border-co-line p-1 text-sm w-fit">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`rounded-full px-4 py-2 font-medium transition-colors ${
+              activeTab === tab.id ? 'bg-co-green text-white' : 'text-co-muted hover:text-co-ink'
+            }`}
+          >
+            {tab.label} ({grouped[tab.id].length})
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6 space-y-4">
+        {activeBookings.length === 0 && (
+          <p className="rounded-co-md border border-dashed border-co-line bg-co-paper p-6 text-sm text-co-muted">
+            No {activeTab} sessions yet.
+          </p>
+        )}
+        {activeBookings.map((booking) => (
+          <BookingRow key={booking.id} booking={booking} />
+        ))}
+      </div>
+    </div>
+  );
+}
