@@ -8,7 +8,7 @@
  */
 
 /** Bump this whenever the persisted shape changes and add a migration in services/migrations.ts. */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /** 0 = Sunday ... 6 = Saturday, matching `Date#getDay()`. */
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -95,6 +95,8 @@ export interface InstructorApproach {
 export interface Instructor {
   id: string;
   name: string;
+  /** Sign-in email for the instructor account (accounts are created by ClearOrigin, not self-registered). */
+  email?: string;
   /** Optional Chinese name shown alongside the romanized one. */
   chineseName?: string;
   title: string;
@@ -314,3 +316,12 @@ export interface AppData {
 }
 
 export type DemoRole = 'student' | 'instructor';
+
+/**
+ * Who is signed in. Prototype sign-in is email-only (no password, no
+ * verification yet), so this is a convenience, not a security boundary.
+ */
+export interface Session {
+  role: DemoRole;
+  userId: string;
+}

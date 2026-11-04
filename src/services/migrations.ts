@@ -53,6 +53,20 @@ export function migrateV1ToV2(v1: AppDataV1): AppData {
   };
 }
 
+/**
+ * v2 → v3. Instructor accounts gained sign-in emails; instructor profiles are
+ * code-owned content, so they are refreshed from code (keeping any extra
+ * instructors). Everything the user created is kept as-is.
+ */
+export function migrateV2ToV3(v2: AppData): AppData {
+  const known = new Set(demoInstructors.map((i) => i.id));
+  return {
+    ...v2,
+    schemaVersion: 3,
+    instructors: [...demoInstructors, ...v2.instructors.filter((i) => !known.has(i.id))],
+  };
+}
+
 export type MigrationResult = { ok: true; data: AppData; migratedFrom?: number } | { ok: false; reason: string };
 
 /** Bring any known persisted version up to SCHEMA_VERSION. Unknown/corrupt shapes are rejected, never guessed at. */
@@ -61,15 +75,21 @@ export function migrateToLatest(raw: unknown): MigrationResult {
     return { ok: false, reason: 'Unrecognized data.' };
   }
   const version = (raw as { schemaVersion: unknown }).schemaVersion;
+  const isV2Shape = (data: AppData) => Array.isArray(data.bookings) && Array.isArray(data.courses);
   if (version === SCHEMA_VERSION) {
     const data = raw as AppData;
-    if (!Array.isArray(data.bookings) || !Array.isArray(data.courses)) return { ok: false, reason: 'Corrupt v2 data.' };
+    if (!isV2Shape(data)) return { ok: false, reason: 'Corrupt v3 data.' };
     return { ok: true, data };
+  }
+  if (version === 2) {
+    const v2 = raw as AppData;
+    if (!isV2Shape(v2)) return { ok: false, reason: 'Corrupt v2 data.' };
+    return { ok: true, data: migrateV2ToV3(v2), migratedFrom: 2 };
   }
   if (version === 1) {
     const v1 = raw as AppDataV1;
     if (!Array.isArray(v1.bookings) || !Array.isArray(v1.students)) return { ok: false, reason: 'Corrupt v1 data.' };
-    return { ok: true, data: migrateV1ToV2(v1), migratedFrom: 1 };
+    return { ok: true, data: migrateV2ToV3(migrateV1ToV2(v1)), migratedFrom: 1 };
   }
   return { ok: false, reason: `Unsupported schema version ${String(version)}.` };
 }

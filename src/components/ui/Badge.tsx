@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { BookingStatus } from '@/types';
 import { bookingStatusDescriptors, type StatusDescriptor, type StatusTone } from '@/lib/checkout';
+import { useI18n } from '@/i18n/useI18n';
 
 const toneClasses: Record<StatusTone, string> = {
   success: 'bg-co-sage/25 text-co-sage-dark',
@@ -12,10 +13,12 @@ const toneClasses: Record<StatusTone, string> = {
 
 /** A small rounded status label. `prefix` (e.g. "Booking", "Payment") keeps different statuses distinguishable. */
 export function StatusPill({ descriptor, prefix }: { descriptor: StatusDescriptor; prefix?: string }) {
+  const { m } = useI18n();
+  const labels = m.status[descriptor.group] as Record<string, string>;
   return (
     <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${toneClasses[descriptor.tone]}`}>
       {prefix && <span className="font-normal opacity-75">{prefix}:</span>}
-      {descriptor.label}
+      {labels[descriptor.key] ?? descriptor.label}
     </span>
   );
 }
@@ -33,19 +36,21 @@ export function Badge({ children, className = '' }: { children: ReactNode; class
 }
 
 /** Marks content (copy, prices, policy) that ClearOrigin has not yet approved. */
-export function DraftLabel({ children = 'Draft — pending ClearOrigin confirmation' }: { children?: ReactNode }) {
+export function DraftLabel({ children }: { children?: ReactNode }) {
+  const { m } = useI18n();
   return (
     <span className="inline-flex items-center rounded-full border border-dashed border-co-clay/50 px-2.5 py-0.5 text-[11px] font-medium text-co-clay">
-      {children}
+      {children ?? m.common.draftPending}
     </span>
   );
 }
 
 /** Labels anything simulated in the prototype (payments, meetings). */
-export function DemoLabel({ children = 'Demo' }: { children?: ReactNode }) {
+export function DemoLabel({ children }: { children?: ReactNode }) {
+  const { m } = useI18n();
   return (
     <span className="inline-flex items-center rounded-full bg-co-ink px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-co-bg">
-      {children}
+      {children ?? m.common.demo}
     </span>
   );
 }

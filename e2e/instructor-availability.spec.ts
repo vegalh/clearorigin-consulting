@@ -1,13 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { signInAsInstructor, signOut } from './helpers';
 
 test.describe('Instructor availability editing', () => {
   test('switching to instructor role and saving a new weekly slot shows up for students', async ({ page }) => {
-    await page.goto('/');
-
-    // Switch the demo role to "Instructor" (defaults to acting as Maya Chen).
-    await page.getByRole('button', { name: 'Instructor', exact: true }).click();
-    await expect(page).toHaveURL(/\/$/);
-
+    // Instructors sign in to their own account (one-click demo account for Maya Chen).
+    await signInAsInstructor(page);
     await page.getByRole('link', { name: 'Availability' }).click();
     await expect(page.getByRole('heading', { name: 'Availability' })).toBeVisible();
 
@@ -20,9 +17,9 @@ test.describe('Instructor availability editing', () => {
     await page.getByRole('button', { name: 'Save weekly schedule' }).click();
     await expect(page.getByText('Saved')).toBeVisible();
 
-    // Switch back to the student view and confirm Maya Chen's profile now
-    // reflects the updated weekly schedule (Sunday slots are present).
-    await page.getByRole('button', { name: 'Student', exact: true }).click();
+    // Sign out and confirm Maya Chen's public profile now reflects the
+    // updated weekly schedule (Sunday slots are present).
+    await signOut(page);
     await page.goto('/instructors/maya-chen');
     await expect(page.getByRole('heading', { name: 'Maya Chen' })).toBeVisible();
 
@@ -35,10 +32,7 @@ test.describe('Instructor availability editing', () => {
   });
 
   test('instructor dashboard shows stats and upcoming sessions', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: 'Instructor', exact: true }).click();
-    await page.getByRole('link', { name: 'Teaching Studio' }).click();
-
+    await signInAsInstructor(page);
     await expect(page.getByRole('heading', { name: /Welcome back/ })).toBeVisible();
     await expect(page.getByText('Today', { exact: true })).toBeVisible();
     await expect(page.getByText('In checkout', { exact: true })).toBeVisible();
@@ -50,8 +44,7 @@ test.describe('Instructor availability editing', () => {
   });
 
   test('instructor can set a preferred meeting platform', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: 'Instructor', exact: true }).click();
+    await signInAsInstructor(page);
     await page.getByRole('link', { name: 'Availability' }).click();
     await page.getByText('Google Meet', { exact: true }).click();
     await page.getByRole('link', { name: 'Teaching Studio' }).click();

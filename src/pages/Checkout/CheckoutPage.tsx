@@ -9,25 +9,20 @@ import { Button, ButtonLink } from '@/components/ui/Button';
 import { DemoLabel, DraftLabel } from '@/components/ui/Badge';
 import { BookingProgress } from '@/components/booking/BookingProgress';
 import { HoldCountdown } from '@/components/booking/HoldCountdown';
-import { policySummary } from '@/config/bookingPolicy';
-import { labelForGoal, labelForLevel } from '@/config/learnerOptions';
+import { bookingPolicy } from '@/config/bookingPolicy';
+import { useI18n } from '@/i18n/useI18n';
 import { methodsForCurrency } from '@/services/payments/methods';
 import type { SimulatedOutcome } from '@/services/payments/types';
 import { blocksSlot } from '@/lib/scheduling';
 import { formatMoney, remainingCredits } from '@/lib/checkout';
-import { formatDisplayDate, formatDisplayTimeRange } from '@/lib/dates/format';
 
-const outcomes: { value: SimulatedOutcome; label: string }[] = [
-  { value: 'success', label: 'Payment succeeds' },
-  { value: 'failure', label: 'Payment fails' },
-  { value: 'cancel', label: 'I cancel the payment' },
-  { value: 'timeout', label: 'Payment times out' },
-];
+const outcomes: SimulatedOutcome[] = ['success', 'failure', 'cancel', 'timeout'];
 
 export function CheckoutPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
-  const { data, viewerTimezone, payForBooking, confirmWithCredit, cancelCheckout } = useAppData();
+  const { data, viewerTimezone, currentStudentId, payForBooking, confirmWithCredit, cancelCheckout } = useAppData();
+  const { m, loc, fmt } = useI18n();
   const now = useNow(1000);
 
   const booking = data.bookings.find((b) => b.id === bookingId);
@@ -39,6 +34,16 @@ export function CheckoutPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   if (!booking) return <Navigate to="/book" replace />;
+  if (booking.studentId !== currentStudentId) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-16">
+        <Card>
+          <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink">{m.checkout.payTitle}</h1>
+          <p className="mt-3 text-sm text-co-muted">{m.checkout.signInToContinue}</p>
+        </Card>
+      </div>
+    );
+  }
   if (booking.status === 'confirmed' || booking.status === 'completed') return <Navigate to={`/booking/success/${booking.id}`} replace />;
 
   const course = data.courses.find((c) => c.id === booking.courseId);
@@ -56,16 +61,14 @@ export function CheckoutPage() {
         <BookingProgress current="Payment" />
         <Card>
           <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink">
-            {cancelled ? 'You left checkout.' : 'Your hold has expired.'}
+            {cancelled ? m.checkout.leftTitle : m.checkout.expiredTitle}
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-co-muted">
-            {cancelled
-              ? 'The time has been released and nothing was charged.'
-              : 'We released the time so others can book it. Nothing was confirmed, and no lesson credit was used.'}
-            {order?.status === 'refund_pending' && ' A simulated payment arrived after the hold ended; it has been flagged for a refund review.'}
+            {cancelled ? m.checkout.leftBody : m.checkout.expiredBody}
+            {order?.status === 'refund_pending' && m.checkout.lateRefund}
           </p>
           <ButtonLink to={restartLink} variant="primary" className="mt-6">
-            Choose a time again
+            {m.checkout.chooseAgain}
           </ButtonLink>
         </Card>
       </div>
@@ -84,18 +87,18 @@ export function CheckoutPage() {
     const result = await payForBooking(booking.id, selectedMethod, outcome);
     setBusy(false);
     if (result.ok) navigate(`/booking/success/${booking.id}`);
-    else setMessage(result.reason);
+    else setMessage(loc.reason(result.reason));
   };
 
   const handleCredit = () => {
     const result = confirmWithCredit(booking.id);
     if (result.ok) navigate(`/booking/success/${booking.id}`);
-    else setMessage(result.reason);
+    else setMessage(loc.reason(result.reason));
   };
 
   const handleLeave = () => {
     const result = cancelCheckout(booking.id);
-    if (!result.ok) setMessage(result.reason);
+    if (!result.ok) setMessage(loc.reason(result.reason));
   };
 
   return (
@@ -105,102 +108,102 @@ export function CheckoutPage() {
         <div className="min-w-0 space-y-5">
           <div>
             <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink sm:text-3xl">
-              {booking.paymentMode === 'package_credit' ? 'Confirm with your package credit' : 'Review and pay'}
+              {booking.paymentMode === 'package_credit' ? m.checkout.creditTitle : m.checkout.payTitle}
             </h1>
-            <p className="mt-2 text-sm text-co-muted">Your lesson is confirmed only once this step succeeds.</p>
+            <p className="mt-2 text-sm text-co-muted">{m.checkout.confirmedOnlyWhen}</p>
           </div>
 
           {/* Phones: the full order summary sits below the form, so lead with the essentials. */}
           <div className="rounded-co-md border border-co-line bg-co-paper px-4 py-3 text-sm lg:hidden">
             <p className="font-medium text-co-ink">
-              {course?.title} · {instructor?.name}
+              {course && loc.course(course).title} · {instructor && loc.instructorName(instructor)}
             </p>
             <p className="text-co-muted">
-              {formatDisplayDate(booking.startAtUtc, viewerTimezone)}, {formatDisplayTimeRange(booking.startAtUtc, booking.endAtUtc, viewerTimezone)}
+              {fmt.date(booking.startAtUtc, viewerTimezone)}, {fmt.timeRange(booking.startAtUtc, booking.endAtUtc, viewerTimezone)}
             </p>
-            <p className="mt-1 font-medium text-co-ink">{order ? formatMoney(order.amount) : '1 package credit'}</p>
+            <p className="mt-1 font-medium text-co-ink">{order ? formatMoney(order.amount) : m.checkout.oneCredit}</p>
           </div>
 
           {booking.holdExpiresAt && <HoldCountdown expiresAt={booking.holdExpiresAt} now={now} />}
 
           {booking.paymentMode === 'package_credit' && balance ? (
             <Card>
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Covered by your package</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.checkout.coveredByPackage}</h2>
               <p className="mt-3 text-sm text-co-ink">
-                This lesson uses 1 credit. You have {remainingCredits(balance)} of {balance.totalCredits} credits; {remainingCredits(balance) - 1}{' '}
-                will remain after confirming. No payment is needed.
+                {m.checkout.creditBody(remainingCredits(balance), balance.totalCredits, remainingCredits(balance) - 1)}
               </p>
               <Button variant="primary" className="mt-5 w-full sm:w-auto" onClick={handleCredit}>
-                Confirm with 1 credit
+                {m.checkout.confirmWithCredit}
               </Button>
             </Card>
           ) : (
             order && (
               <Card>
                 <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Payment method</h2>
-                  <DemoLabel>Simulated</DemoLabel>
+                  <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.checkout.paymentMethod}</h2>
+                  <DemoLabel>{m.common.simulated}</DemoLabel>
                 </div>
                 <fieldset className="mt-3" disabled={processing}>
-                  <legend className="sr-only">Payment method</legend>
+                  <legend className="sr-only">{m.checkout.paymentMethod}</legend>
                   <div className="grid grid-cols-1 gap-2">
-                    {methods.map((m) => (
+                    {methods.map((method) => (
                       <label
-                        key={m.id}
+                        key={method.id}
                         className={`flex cursor-pointer items-start gap-3 rounded-co-md border p-4 transition-colors ${
-                          selectedMethod === m.id ? 'border-co-orange-dark bg-co-pale/40' : 'border-co-line hover:border-co-orange-dark'
+                          selectedMethod === method.id ? 'border-co-orange-dark bg-co-pale/40' : 'border-co-line hover:border-co-orange-dark'
                         }`}
                       >
                         <input
                           type="radio"
                           name="method"
-                          value={m.id}
-                          checked={selectedMethod === m.id}
-                          onChange={() => setMethod(m.id)}
+                          value={method.id}
+                          checked={selectedMethod === method.id}
+                          onChange={() => setMethod(method.id)}
                           className="mt-1 h-4 w-4 shrink-0"
                         />
                         <span>
-                          <span className="block text-sm font-medium text-co-ink">{m.label}</span>
-                          <span className="block text-xs text-co-muted">{m.description}</span>
+                          <span className="block text-sm font-medium text-co-ink">{loc.paymentMethod(method.id).label}</span>
+                          <span className="block text-xs text-co-muted">{loc.paymentMethod(method.id).description}</span>
                         </span>
                       </label>
                     ))}
                   </div>
                   {order.amount.currency === 'USD' && (
-                    <p className="mt-2 text-xs text-co-muted">WeChat Pay and Alipay demos are available when you pay in CNY.</p>
+                    <p className="mt-2 text-xs text-co-muted">{m.checkout.cnyMethodsNote}</p>
                   )}
                 </fieldset>
 
                 <fieldset className="mt-5 rounded-co-md border border-dashed border-co-line bg-co-bg p-4" disabled={processing}>
-                  <legend className="px-1 text-xs font-medium text-co-muted">Demo outcome (prototype only)</legend>
+                  <legend className="px-1 text-xs font-medium text-co-muted">{m.checkout.demoOutcome}</legend>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {outcomes.map((o) => (
-                      <label key={o.value} className="flex items-center gap-2 text-sm text-co-ink">
+                      <label key={o} className="flex items-center gap-2 text-sm text-co-ink">
                         <input
                           type="radio"
                           name="outcome"
-                          value={o.value}
-                          checked={outcome === o.value}
-                          onChange={() => setOutcome(o.value)}
+                          value={o}
+                          checked={outcome === o}
+                          onChange={() => setOutcome(o)}
                           className="h-4 w-4"
                         />
-                        {o.label}
+                        {m.checkout.outcomes[o]}
                       </label>
                     ))}
                   </div>
                   <p className="mt-2 text-xs text-co-muted">
-                    No real payment provider is contacted and no card, account or QR details are ever requested.
+                    {m.checkout.noCredentials}
                   </p>
                 </fieldset>
 
                 {(message || (lastAttempt && lastAttempt.status !== 'processing' && lastAttempt.failureReason)) && (
                   <p role="alert" className="mt-4 rounded-co-sm bg-co-pale/50 px-3 py-2 text-sm text-co-orange-dark">
-                    {message ?? lastAttempt?.failureReason} Your lesson is not confirmed{holdActive ? ' — you can try again while your time is held.' : '.'}
+                    {message ?? loc.reason(lastAttempt?.failureReason ?? '')}
+                    {holdActive ? m.checkout.notConfirmedRetry : m.checkout.notConfirmed}
                   </p>
                 )}
 
                 <Button variant="primary" className="mt-5 w-full" disabled={processing || !selectedMethod} onClick={handlePay}>
-                  {processing ? 'Processing simulated payment…' : `Pay ${formatMoney(order.amount)} (simulated)`}
+                  {processing ? m.checkout.processing : m.checkout.pay(formatMoney(order.amount))}
                 </Button>
               </Card>
             )
@@ -214,11 +217,11 @@ export function CheckoutPage() {
 
           <Card className="bg-co-paper">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Cancellation & rescheduling</h2>
-              <DraftLabel>Draft policy</DraftLabel>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.checkout.policyTitle}</h2>
+              <DraftLabel>{m.common.draftPolicy}</DraftLabel>
             </div>
             <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-co-muted">
-              {policySummary().map((line) => (
+              {m.policy.summary(bookingPolicy.holdMinutes, bookingPolicy.rescheduleNoticeHours, bookingPolicy.cancellationNoticeHours).map((line) => (
                 <li key={line}>{line}</li>
               ))}
             </ul>
@@ -226,69 +229,69 @@ export function CheckoutPage() {
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <Button variant="ghost" onClick={handleLeave} disabled={processing}>
-              Cancel and release this time
+              {m.checkout.release}
             </Button>
             <Link to="/faq" className="text-xs font-medium text-co-muted underline underline-offset-2">
-              Questions about payments?
+              {m.checkout.paymentQuestions}
             </Link>
           </div>
         </div>
 
         <aside className="lg:sticky lg:top-6 lg:h-fit">
           <Card>
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Order summary</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.checkout.orderSummary}</h2>
             <dl className="mt-4 space-y-3 text-sm">
               <div>
-                <dt className="text-xs text-co-muted">Course</dt>
-                <dd className="font-medium text-co-ink">{course?.title}</dd>
+                <dt className="text-xs text-co-muted">{m.book.course}</dt>
+                <dd className="font-medium text-co-ink">{course && loc.course(course).title}</dd>
               </div>
               <div>
-                <dt className="text-xs text-co-muted">Instructor</dt>
-                <dd className="text-co-ink">{instructor?.name}</dd>
+                <dt className="text-xs text-co-muted">{m.checkout.instructor}</dt>
+                <dd className="text-co-ink">{instructor && loc.instructorName(instructor)}</dd>
               </div>
               <div>
-                <dt className="text-xs text-co-muted">{course?.category === 'package' ? 'First lesson' : 'Date & time'}</dt>
+                <dt className="text-xs text-co-muted">{course?.category === 'package' ? m.book.firstLesson : m.checkout.dateTime}</dt>
                 <dd className="text-co-ink">
-                  {formatDisplayDate(booking.startAtUtc, viewerTimezone)}
+                  {fmt.date(booking.startAtUtc, viewerTimezone)}
                   <br />
-                  {formatDisplayTimeRange(booking.startAtUtc, booking.endAtUtc, viewerTimezone)}
-                  <span className="block text-xs text-co-muted">{viewerTimezone.replace('_', ' ')}</span>
+                  {fmt.timeRange(booking.startAtUtc, booking.endAtUtc, viewerTimezone)}
+                  <span className="block text-xs text-co-muted">{loc.timezone(viewerTimezone)}</span>
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-co-muted">Session length</dt>
+                <dt className="text-xs text-co-muted">{m.checkout.sessionLength}</dt>
                 <dd className="text-co-ink">
-                  {course?.durationMinutes} minutes{course?.sessionCount ? ` · ${course.sessionCount} lessons in package` : ''}
+                  {course && m.common.minutes(course.durationMinutes)}
+                  {course?.sessionCount ? m.checkout.lessonsInPackage(course.sessionCount) : ''}
                 </dd>
               </div>
               {booking.learner && (
                 <div>
-                  <dt className="text-xs text-co-muted">Learner</dt>
+                  <dt className="text-xs text-co-muted">{m.checkout.learner}</dt>
                   <dd className="text-co-ink">
                     {booking.learner.name}
-                    {booking.learner.bookedByGuardian && <span className="text-co-muted"> (booked by parent/guardian)</span>}
+                    {booking.learner.bookedByGuardian && <span className="text-co-muted"> {m.checkout.bookedByGuardian}</span>}
                     <span className="block text-xs text-co-muted">
-                      {labelForLevel(booking.learner.level)} · {labelForGoal(booking.learner.goal)}
+                      {loc.level(booking.learner.level)} · {loc.goal(booking.learner.goal)}
                     </span>
                   </dd>
                 </div>
               )}
               <div>
-                <dt className="text-xs text-co-muted">Meeting link</dt>
-                <dd className="text-co-ink">Your meeting link will be available after confirmation.</dd>
+                <dt className="text-xs text-co-muted">{m.checkout.meetingLink}</dt>
+                <dd className="text-co-ink">{m.checkout.meetingAfter}</dd>
               </div>
               <div className="border-t border-co-line pt-3">
-                <dt className="text-xs text-co-muted">Order amount</dt>
+                <dt className="text-xs text-co-muted">{m.checkout.orderAmount}</dt>
                 <dd className="font-serif text-2xl font-medium text-co-ink">
-                  {order ? formatMoney(order.amount) : 'Package credit'}
+                  {order ? formatMoney(order.amount) : m.checkout.packageCredit}
                 </dd>
-                {order && <dd className="text-xs text-co-muted">Demo price · reference {order.reference}</dd>}
+                {order && <dd className="text-xs text-co-muted">{m.checkout.reference(order.reference)}</dd>}
               </div>
             </dl>
             <p className="mt-4 flex items-start gap-2 text-xs text-co-muted">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-co-sage-dark" aria-hidden="true" />
-              In production, payment would happen on the provider's secure hosted page and be verified by ClearOrigin's server before
-              confirming.
+              {m.checkout.productionNote}
             </p>
           </Card>
         </aside>

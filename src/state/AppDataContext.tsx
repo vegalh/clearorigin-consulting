@@ -8,10 +8,12 @@ import type {
   MeetingProvider,
   PaymentMethodId,
   RecurringAvailability,
+  Session,
   SessionType,
   Student,
   TimeSlot,
 } from '@/types';
+import { findInstructorByEmail, signInOrRegisterStudent, updateStudentProfile } from '@/services/accountService';
 import { STORAGE_KEY, storageService } from '@/services/storageService';
 import { createBooking } from '@/services/bookingService';
 import type { BookingOutcome } from '@/services/types';
@@ -42,15 +44,19 @@ export type ActionResult<T extends object = object> = ({ ok: true } & T) | { ok:
 
 export interface AppDataContextValue {
   data: AppData;
-  /** "Prototype Mode" role switcher — explicitly non-secure, demo-only (see plan doc §9). */
-  role: DemoRole;
-  setRole: (role: DemoRole) => void;
-  /** The demo student whose bookings "My Learning Space" shows. */
-  currentStudentId: string;
-  setCurrentStudentId: (studentId: string) => void;
-  /** The instructor the "Teaching Studio" pages act as. */
-  currentInstructorId: string;
-  setCurrentInstructorId: (instructorId: string) => void;
+  /** Signed-in account, or null. Email-only prototype sign-in — not a security boundary. */
+  session: Session | null;
+  role: DemoRole | null;
+  /** The signed-in student (null when signed out or signed in as an instructor). */
+  currentStudentId: string | null;
+  /** The signed-in instructor (null otherwise). */
+  currentInstructorId: string | null;
+  signInStudent: (input: { email: string; fullName?: string }) => ActionResult;
+  signInInstructor: (email: string) => ActionResult;
+  /** One-click demo accounts, standing in until email verification exists. */
+  signInAs: (role: DemoRole, userId: string) => void;
+  signOut: () => void;
+  updateProfile: (patch: { fullName: string; email: string }) => ActionResult;
   /** Timezone the student-facing views render times in (defaults to the browser's). */
   viewerTimezone: string;
   setViewerTimezone: (timezone: string) => void;
@@ -82,6 +88,32 @@ export interface AppDataContextValue {
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
 
+export const SESSION_STORAGE_KEY = 'clearorigin-booking-prototype:session';
+
+function loadSession(data: AppData): Session | null {
+  try {
+    const raw = window.localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const session = JSON.parse(raw) as Session;
+    const exists =
+      session.role === 'student'
+        ? data.students.some((s) => s.id === session.userId)
+        : data.instructors.some((i) => i.id === session.userId);
+    return exists ? session : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveSession(session: Session | null) {
+  try {
+    if (session) window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+    else window.localStorage.removeItem(SESSION_STORAGE_KEY);
+  } catch {
+    // in-memory only
+  }
+}
+
 function loadInitialData(): AppData {
   // In-flight mock payments die with the previous page, so reconcile them on boot.
   const now = new Date();
@@ -95,9 +127,14 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(loadInitialData);
   // Latest data for async work (payment callbacks) so it never acts on a stale render's snapshot.
   const dataRef = useRef(data);
-  const [role, setRole] = useState<DemoRole>('student');
-  const [currentStudentId, setCurrentStudentId] = useState('student-alex');
-  const [currentInstructorId, setCurrentInstructorId] = useState('maya-chen');
+  const [session, setSessionState] = useState<Session | null>(() => loadSession(data));
+  const setSession = useCallback((next: Session | null) => {
+    saveSession(next);
+    setSessionState(next);
+  }, []);
+  const role = session?.role ?? null;
+  const currentStudentId = session?.role === 'student' ? session.userId : null;
+  const currentInstructorId = session?.role === 'instructor' ? session.userId : null;
   const [viewerTimezone, setViewerTimezone] = useState<string>(() => browserTimezone());
 
   const commit = useCallback((next: AppData) => {
@@ -123,6 +160,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const timer = window.setInterval(() => commit(sweep(dataRef.current, new Date())), SWEEP_INTERVAL_MS);
     const onStorage = (event: StorageEvent) => {
+      if (event.key === SESSION_STORAGE_KEY) {
+        setSessionState(loadSession(dataRef.current));
+        return;
+      }
       if (event.key !== STORAGE_KEY || !event.newValue) return;
       const next = storageService.load();
       dataRef.current = next;
@@ -145,9 +186,61 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
+  const signInStudent = useCallback<AppDataContextValue['signInStudent']>(
+    (input) => {
+      const result = signInOrRegisterStudent(dataRef.current, input);
+      if (!result.ok) return result;
+      commit(result.data);
+      setSession({ role: 'student', userId: result.studentId });
+      return { ok: true };
+    },
+    [commit, setSession],
+  );
+
+  const signInInstructor = useCallback<AppDataContextValue['signInInstructor']>(
+    (email) => {
+      const instructor = findInstructorByEmail(dataRef.current, email);
+      if (!instructor) return { ok: false, reason: 'No instructor account uses that email.' };
+      setSession({ role: 'instructor', userId: instructor.id });
+      return { ok: true };
+    },
+    [setSession],
+  );
+
+  const signInAs = useCallback((nextRole: DemoRole, userId: string) => setSession({ role: nextRole, userId }), [setSession]);
+  const signOut = useCallback(() => setSession(null), [setSession]);
+
+  const updateProfile = useCallback<AppDataContextValue['updateProfile']>(
+    (patch) => {
+      if (!currentStudentId) return { ok: false, reason: 'Only student profiles can be edited here.' };
+      const result = updateStudentProfile(dataRef.current, currentStudentId, patch);
+      if (!result.ok) return result;
+      commit(result.data);
+      return { ok: true };
+    },
+    [commit, currentStudentId],
+  );
+
+  /**
+   * Checkout always belongs to a student account: the signed-in student, or —
+   * for a first-time visitor — the account found or created from the email
+   * they entered (guest checkout signs them in).
+   */
   const startCheckoutAction = useCallback<AppDataContextValue['startCheckout']>(
-    (input) => run((current, now) => startCheckout({ ...input, contact: { id: currentStudentId, ...input.contact } }, current, now)),
-    [run, currentStudentId],
+    (input) => {
+      if (session?.role === 'instructor') return { ok: false, reason: 'Instructor accounts cannot book lessons.' };
+      let studentId = currentStudentId;
+      if (!studentId) {
+        const account = signInOrRegisterStudent(dataRef.current, { email: input.contact.email, fullName: input.contact.fullName });
+        if (!account.ok) return account;
+        commit(account.data);
+        studentId = account.studentId;
+        setSession({ role: 'student', userId: studentId });
+      }
+      const id = studentId;
+      return run((current, now) => startCheckout({ ...input, contact: { id, ...input.contact } }, current, now));
+    },
+    [run, commit, currentStudentId, session, setSession],
   );
 
   const payForBooking = useCallback<AppDataContextValue['payForBooking']>(
@@ -214,17 +307,21 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const resetDemoData = useCallback(() => {
     commit(storageService.reset());
-  }, [commit]);
+    setSession(null);
+  }, [commit, setSession]);
 
   const value = useMemo<AppDataContextValue>(
     () => ({
       data,
+      session,
       role,
-      setRole,
       currentStudentId,
-      setCurrentStudentId,
       currentInstructorId,
-      setCurrentInstructorId,
+      signInStudent,
+      signInInstructor,
+      signInAs,
+      signOut,
+      updateProfile,
       viewerTimezone,
       setViewerTimezone,
       bookSession,
@@ -242,9 +339,15 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }),
     [
       data,
+      session,
       role,
       currentStudentId,
       currentInstructorId,
+      signInStudent,
+      signInInstructor,
+      signInAs,
+      signOut,
+      updateProfile,
       viewerTimezone,
       bookSession,
       startCheckoutAction,

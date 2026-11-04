@@ -12,6 +12,7 @@ import type { Instructor } from '@/types';
 export const demoInstructors: Instructor[] = [
   {
     id: 'maya-chen',
+    email: 'maya.chen@instructors.example.com',
     name: 'Maya Chen',
     chineseName: '陈美雅',
     title: 'Conversational Mandarin Coach',
@@ -39,6 +40,7 @@ export const demoInstructors: Instructor[] = [
   },
   {
     id: 'david-okafor',
+    email: 'david.okafor@instructors.example.com',
     name: 'David Okafor',
     chineseName: '欧大卫',
     title: 'Chinese for Work Coach',
@@ -66,6 +68,7 @@ export const demoInstructors: Instructor[] = [
   },
   {
     id: 'priya-nandakumar',
+    email: 'priya.nandakumar@instructors.example.com',
     name: 'Priya Nandakumar',
     chineseName: '李雅',
     title: 'School & HSK Chinese Coach',
@@ -93,6 +96,7 @@ export const demoInstructors: Instructor[] = [
   },
   {
     id: 'liang-wu',
+    email: 'liang.wu@instructors.example.com',
     name: 'Liang Wu',
     chineseName: '吴亮',
     title: 'Young Learner & Heritage Teacher',

@@ -66,7 +66,7 @@ test.describe('Student booking flow', () => {
     const totalCount = Number(countText?.match(/\d+/)?.[0]);
     expect(totalCount).toBeGreaterThan(0);
 
-    await page.getByLabel('Language').selectOption('Mandarin');
+    await page.getByLabel('Language', { exact: true }).selectOption('Mandarin');
     await expect(page.locator('text=/\\d+ instructors? available/')).toBeVisible();
     const filteredText = await page.locator('text=/\\d+ instructors? available/').textContent();
     const filteredCount = Number(filteredText?.match(/\d+/)?.[0]);

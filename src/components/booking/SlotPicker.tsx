@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { TimeSlot } from '@/types';
 import { localDateString } from '@/lib/scheduling';
-import { formatDisplayTime, formatShortWeekday } from '@/lib/dates/format';
+import { useI18n } from '@/i18n/useI18n';
 
 interface SlotPickerProps {
   slots: TimeSlot[];
@@ -20,6 +20,7 @@ interface DayGroup {
  * then shows a horizontal day picker + a grid of times for the active day.
  */
 export function SlotPicker({ slots, timezone, selected, onSelect }: SlotPickerProps) {
+  const { m, fmt } = useI18n();
   const dayGroups = useMemo<DayGroup[]>(() => {
     const byDate = new Map<string, TimeSlot[]>();
     for (const slot of slots) {
@@ -46,7 +47,7 @@ export function SlotPicker({ slots, timezone, selected, onSelect }: SlotPickerPr
   if (dayGroups.length === 0) {
     return (
       <p className="rounded-co-md border border-dashed border-co-line bg-co-paper p-6 text-sm text-co-muted">
-        No openings for this session type right now. Try another session length, or check back soon.
+        {m.slots.none}
       </p>
     );
   }
@@ -58,7 +59,7 @@ export function SlotPicker({ slots, timezone, selected, onSelect }: SlotPickerPr
       <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
         {dayGroups.map((group) => {
           const first = group.slots[0];
-          const { weekday, day, month } = formatShortWeekday(first.startUtc, timezone);
+          const { weekday, day, month } = fmt.shortWeekday(first.startUtc, timezone);
           const isActive = group.dateStr === activeGroup.dateStr;
           return (
             <button
@@ -93,7 +94,7 @@ export function SlotPicker({ slots, timezone, selected, onSelect }: SlotPickerPr
                   : 'border-co-line bg-co-paper text-co-ink hover:border-co-orange-dark'
               }`}
             >
-              {formatDisplayTime(slot.startUtc, timezone)}
+              {fmt.time(slot.startUtc, timezone)}
             </button>
           );
         })}

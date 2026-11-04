@@ -2,7 +2,7 @@ import type { Course, Instructor, TimeSlot } from '@/types';
 import { useAppData } from '@/state/AppDataContext';
 import { Card } from '@/components/ui/Card';
 import { CoursePrice } from '@/components/booking/CourseCard';
-import { formatDisplayDate, formatDisplayTimeRange } from '@/lib/dates/format';
+import { useI18n } from '@/i18n/useI18n';
 import { remainingCredits } from '@/lib/checkout';
 import type { BookingSelection } from './BookPage';
 
@@ -21,49 +21,51 @@ export function SelectedCourseSummary({
   onChangeCourse?: () => void;
 }) {
   const { data, viewerTimezone } = useAppData();
+  const { m, loc, fmt } = useI18n();
   const balance = selection.mode === 'credit' ? data.packageBalances.find((b) => b.id === selection.balanceId) : undefined;
 
   return (
     <Card>
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Your booking</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.book.summary}</h2>
         {onChangeCourse && (
           <button type="button" onClick={onChangeCourse} className="text-xs font-medium text-co-orange-dark underline underline-offset-2">
-            Change course
+            {m.book.changeCourse}
           </button>
         )}
       </div>
       <dl className="mt-4 space-y-3 text-sm">
         <div>
-          <dt className="text-xs text-co-muted">Course</dt>
+          <dt className="text-xs text-co-muted">{m.book.course}</dt>
           <dd className="font-medium text-co-ink">
-            {course.title} · {course.durationMinutes} min{course.sessionCount ? ` × ${course.sessionCount}` : ''}
+            {loc.course(course).title} ·{' '}
+            {course.sessionCount ? m.common.lessonsTimesMinutes(course.sessionCount, course.durationMinutes) : m.common.min(course.durationMinutes)}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-co-muted">Instructor</dt>
-          <dd className="text-co-ink">{instructor?.name ?? 'Not chosen yet'}</dd>
+          <dt className="text-xs text-co-muted">{m.book.instructor}</dt>
+          <dd className="text-co-ink">{instructor ? loc.instructorName(instructor) : m.common.notChosenYet}</dd>
         </div>
         <div>
-          <dt className="text-xs text-co-muted">{course.category === 'package' ? 'First lesson' : 'Time'}</dt>
+          <dt className="text-xs text-co-muted">{course.category === 'package' ? m.book.firstLesson : m.book.time}</dt>
           <dd className="text-co-ink">
             {slot ? (
               <>
-                {formatDisplayDate(slot.startUtc, viewerTimezone)}
+                {fmt.date(slot.startUtc, viewerTimezone)}
                 <br />
-                {formatDisplayTimeRange(slot.startUtc, slot.endUtc, viewerTimezone)}
-                <span className="block text-xs text-co-muted">{viewerTimezone.replace('_', ' ')}</span>
+                {fmt.timeRange(slot.startUtc, slot.endUtc, viewerTimezone)}
+                <span className="block text-xs text-co-muted">{loc.timezone(viewerTimezone)}</span>
               </>
             ) : (
-              'Not chosen yet'
+              m.common.notChosenYet
             )}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-co-muted">Price</dt>
+          <dt className="text-xs text-co-muted">{m.book.price}</dt>
           <dd>
             {balance ? (
-              <span className="text-co-ink">1 package credit · {remainingCredits(balance)} remaining</span>
+              <span className="text-co-ink">{m.book.creditPrice(remainingCredits(balance))}</span>
             ) : (
               <CoursePrice course={course} />
             )}

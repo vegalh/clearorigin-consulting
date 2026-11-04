@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { inputClass } from '@/components/ui/fieldStyles';
 import { chineseLevelOptions, learningGoalOptions } from '@/config/learnerOptions';
+import { useI18n } from '@/i18n/useI18n';
 import { bookingPolicy } from '@/config/bookingPolicy';
 import { configuredCurrencies, coursePrice, formatMoney } from '@/lib/checkout';
-import { hasValidationErrors, validateLearnerDetails } from '@/lib/validation/booking';
+import { hasValidationErrors, validateLearnerDetails, type LearnerDetailsErrors } from '@/lib/validation/booking';
 import { SelectedCourseSummary } from './SelectedCourseSummary';
 import type { BookingSelection } from './BookPage';
 
@@ -24,7 +25,8 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 
 export function DetailsStep({ selection, course, onBack }: { selection: BookingSelection; course: Course; onBack: () => void }) {
   const navigate = useNavigate();
-  const { data, currentStudentId, startCheckout } = useAppData();
+  const { data, currentStudentId, role, startCheckout } = useAppData();
+  const { m, loc } = useI18n();
   const existing = data.students.find((s) => s.id === currentStudentId);
   const instructor = data.instructors.find((i) => i.id === selection.instructorId);
   const slot = { startUtc: selection.start!, endUtc: selection.end! };
@@ -46,7 +48,16 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
     () => validateLearnerDetails({ bookingFor, learnerName, contactName, email, level, goal, guardianConsent }),
     [bookingFor, learnerName, contactName, email, level, goal, guardianConsent],
   );
-  const shown = touched ? errors : {};
+  // Validation runs on English source messages; show the translated message per field.
+  const translated: LearnerDetailsErrors = {
+    learnerName: errors.learnerName && m.validation.learnerName,
+    contactName: errors.contactName && (bookingFor === 'child' ? m.validation.guardianName : m.validation.fullName),
+    email: errors.email && (email.trim() ? m.validation.emailInvalid : m.validation.emailRequired),
+    level: errors.level && m.validation.level,
+    goal: errors.goal && m.validation.goal,
+    guardianConsent: errors.guardianConsent && m.validation.guardianConsent,
+  };
+  const shown = touched ? translated : {};
   const isCredit = selection.mode === 'credit';
 
   const handleSubmit = (e: FormEvent) => {
@@ -71,7 +82,7 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
       currency,
     });
     if (result.ok) navigate(`/book/checkout/${result.bookingId}`);
-    else setSubmitError(result.reason);
+    else setSubmitError(loc.reason(result.reason));
   };
 
   const describedBy = (field: keyof typeof errors) => (shown[field] ? `${field}-error` : undefined);
@@ -79,18 +90,23 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
       <div className="min-w-0">
-        <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink sm:text-3xl">Tell us about the learner</h1>
-        <p className="mt-2 text-sm text-co-muted">A few details help your instructor prepare. It only takes a minute.</p>
+        <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink sm:text-3xl">{m.book.detailsTitle}</h1>
+        <p className="mt-2 text-sm text-co-muted">{m.book.detailsIntro}</p>
+        {role === 'instructor' && (
+          <p role="alert" className="mt-4 rounded-co-sm bg-co-pale/50 px-3 py-2 text-sm text-co-orange-dark">
+            {m.book.instructorAccountNotice}
+          </p>
+        )}
 
         <Card className="mt-6">
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <fieldset>
-              <legend className="text-xs font-medium text-co-muted">Who is this lesson for?</legend>
+              <legend className="text-xs font-medium text-co-muted">{m.book.whoFor}</legend>
               <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(
                   [
-                    ['self', 'Myself'],
-                    ['child', "My child (I'm the parent or guardian)"],
+                    ['self', m.book.myself],
+                    ['child', m.book.myChild],
                   ] as const
                 ).map(([value, label]) => (
                   <label
@@ -116,7 +132,7 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
             {bookingFor === 'child' && (
               <div>
                 <label htmlFor="learnerName" className="text-xs font-medium text-co-muted">
-                  Learner's first name or nickname
+                  {m.book.learnerName}
                 </label>
                 <input
                   id="learnerName"
@@ -126,7 +142,7 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
                   aria-describedby={describedBy('learnerName')}
                   className={`${inputClass} mt-1 w-full`}
                 />
-                <p className="mt-1 text-xs text-co-muted">We only need what the instructor will call them — no other details about your child.</p>
+                <p className="mt-1 text-xs text-co-muted">{m.book.learnerNameHelp}</p>
                 <FieldError id="learnerName-error" message={shown.learnerName} />
               </div>
             )}
@@ -134,7 +150,7 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="contactName" className="text-xs font-medium text-co-muted">
-                  {bookingFor === 'child' ? 'Parent or guardian name' : 'Full name'}
+                  {bookingFor === 'child' ? m.book.guardianName : m.book.fullName}
                 </label>
                 <input
                   id="contactName"
@@ -149,7 +165,7 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
               </div>
               <div>
                 <label htmlFor="email" className="text-xs font-medium text-co-muted">
-                  {bookingFor === 'child' ? 'Parent or guardian email' : 'Email'}
+                  {bookingFor === 'child' ? m.book.guardianEmail : m.book.email}
                 </label>
                 <input
                   id="email"
@@ -164,11 +180,12 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
                 <FieldError id="email-error" message={shown.email} />
               </div>
             </div>
+            <p className="-mt-2 text-xs text-co-muted">{existing ? m.book.signedInAs(existing.email) : m.book.accountNote}</p>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="level" className="text-xs font-medium text-co-muted">
-                  Current Chinese level
+                  {m.book.level}
                 </label>
                 <Select
                   id="level"
@@ -180,11 +197,11 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
                   wrapperClassName="mt-1 w-full"
                 >
                   <option value="" disabled>
-                    Choose a level
+                    {m.book.chooseLevel}
                   </option>
                   {chineseLevelOptions.map((o) => (
                     <option key={o.value} value={o.value}>
-                      {o.label}
+                      {loc.level(o.value)}
                     </option>
                   ))}
                 </Select>
@@ -192,7 +209,7 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
               </div>
               <div>
                 <label htmlFor="goal" className="text-xs font-medium text-co-muted">
-                  Primary learning goal
+                  {m.book.goal}
                 </label>
                 <Select
                   id="goal"
@@ -204,11 +221,11 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
                   wrapperClassName="mt-1 w-full"
                 >
                   <option value="" disabled>
-                    Choose a goal
+                    {m.book.chooseGoal}
                   </option>
                   {learningGoalOptions.map((o) => (
                     <option key={o.value} value={o.value}>
-                      {o.label}
+                      {loc.goal(o.value)}
                     </option>
                   ))}
                 </Select>
@@ -218,14 +235,14 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
 
             <div>
               <label htmlFor="notes" className="text-xs font-medium text-co-muted">
-                Notes for the instructor (optional)
+                {m.book.notes}
               </label>
               <textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={`${inputClass} mt-1 w-full`} />
             </div>
 
             {!isCredit && currencies.length > 1 && (
               <fieldset>
-                <legend className="text-xs font-medium text-co-muted">Pay in</legend>
+                <legend className="text-xs font-medium text-co-muted">{m.book.payIn}</legend>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {currencies.map((c) => (
                     <label
@@ -240,7 +257,7 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
                   ))}
                 </div>
                 <p className="mt-2 text-xs text-co-muted">
-                  Each currency has its own configured demo price; nothing is converted. WeChat Pay and Alipay demos are offered for CNY.
+                  {m.book.currencyNote}
                 </p>
               </fieldset>
             )}
@@ -255,14 +272,14 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
                     aria-describedby={describedBy('guardianConsent')}
                     className="mt-0.5 h-4 w-4"
                   />
-                  I am this learner's parent or legal guardian, and I'm booking on their behalf.
+                  {m.book.guardianConsent}
                 </label>
                 <FieldError id="guardianConsent-error" message={shown.guardianConsent} />
               </div>
             )}
 
             <p className="rounded-co-sm bg-co-bg px-3 py-2 text-xs text-co-muted">
-              Next, we'll hold this time for {bookingPolicy.holdMinutes} minutes while you {isCredit ? 'confirm with your credit' : 'complete a simulated payment'}.
+              {isCredit ? m.book.holdNoteCredit(bookingPolicy.holdMinutes) : m.book.holdNotePaid(bookingPolicy.holdMinutes)}
             </p>
 
             {submitError && (
@@ -273,10 +290,10 @@ export function DetailsStep({ selection, course, onBack }: { selection: BookingS
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
               <Button type="button" variant="ghost" onClick={onBack}>
-                Back to times
+                {m.book.backToTimes}
               </Button>
-              <Button type="submit" variant="primary">
-                {isCredit ? 'Continue to confirm' : 'Continue to payment'}
+              <Button type="submit" variant="primary" disabled={role === 'instructor'}>
+                {isCredit ? m.book.continueToConfirm : m.book.continueToPayment}
               </Button>
             </div>
           </form>

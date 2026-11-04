@@ -1,7 +1,9 @@
 import { Clock } from 'lucide-react';
+import { useI18n } from '@/i18n/useI18n';
 
 /** Calm, non-animated countdown for a checkout hold. */
 export function HoldCountdown({ expiresAt, now }: { expiresAt: string; now: Date }) {
+  const { m } = useI18n();
   const remainingMs = Math.max(0, new Date(expiresAt).getTime() - now.getTime());
   const minutes = Math.floor(remainingMs / 60_000);
   const seconds = Math.floor((remainingMs % 60_000) / 1000);
@@ -16,7 +18,7 @@ export function HoldCountdown({ expiresAt, now }: { expiresAt: string; now: Date
     >
       <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
       <span>
-        Time held for you: <strong className="tabular-nums">{minutes}:{String(seconds).padStart(2, '0')}</strong>
+        {m.checkout.timeHeld} <strong className="tabular-nums">{minutes}:{String(seconds).padStart(2, '0')}</strong>
       </span>
     </div>
   );

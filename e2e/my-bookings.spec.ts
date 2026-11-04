@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { timeButtons } from './helpers';
+import { signInAsStudent, timeButtons } from './helpers';
 
 test.describe('My Learning Space - cancel & reschedule (seeded demo data)', () => {
   test('shows seeded bookings split across tabs, with payment, meeting and package status', async ({ page }) => {
-    await page.goto('/bookings');
+    await signInAsStudent(page);
     await expect(page.getByRole('heading', { name: 'My Learning Space' })).toBeVisible();
 
     // Seeded demo data gives student-alex exactly one upcoming, one past
@@ -26,7 +26,7 @@ test.describe('My Learning Space - cancel & reschedule (seeded demo data)', () =
   });
 
   test('can reschedule the upcoming booking to a different time', async ({ page }) => {
-    await page.goto('/bookings');
+    await signInAsStudent(page);
     await expect(page.getByText('45-minute Lesson with Maya Chen')).toBeVisible();
 
     await page.getByRole('button', { name: 'Reschedule' }).click();
@@ -42,7 +42,7 @@ test.describe('My Learning Space - cancel & reschedule (seeded demo data)', () =
   });
 
   test('shows the cancellation policy before cancelling, restores the credit, and keeps the record', async ({ page }) => {
-    await page.goto('/bookings');
+    await signInAsStudent(page);
     await expect(page.getByText('45-minute Lesson with Maya Chen')).toBeVisible();
     await expect(page.getByText('3', { exact: true })).toBeVisible(); // 3 credits remaining
 

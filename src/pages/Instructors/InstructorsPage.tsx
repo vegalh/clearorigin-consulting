@@ -6,9 +6,11 @@ import { Select } from '@/components/ui/Select';
 import { Portrait } from '@/components/ui/Portrait';
 import { useAppData } from '@/state/AppDataContext';
 import { learnerGroupLabels } from '@/config/learnerOptions';
+import { useI18n } from '@/i18n/useI18n';
 
 export function InstructorsPage() {
   const { data } = useAppData();
+  const { m, loc } = useI18n();
   const [languageFilter, setLanguageFilter] = useState<string>('all');
   const [groupFilter, setGroupFilter] = useState<LearnerGroupId | 'all'>('all');
 
@@ -32,16 +34,16 @@ export function InstructorsPage() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink sm:text-3xl">Find your conversation partner.</h1>
+          <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink sm:text-3xl">{m.instructors.title}</h1>
           <p className="mt-2 text-sm text-co-muted">
-            {filteredInstructors.length} instructor{filteredInstructors.length === 1 ? '' : 's'} available · fictional demo profiles
+            {m.instructors.count(filteredInstructors.length)}
           </p>
         </div>
 
         <div className="grid w-full grid-cols-1 gap-3 sm:w-auto sm:grid-cols-2">
           <div className="flex items-center gap-3">
             <label htmlFor="group-filter" className="w-16 shrink-0 text-xs font-medium text-co-muted sm:w-auto">
-              Learner
+              {m.instructors.learnerFilter}
             </label>
             <Select
               id="group-filter"
@@ -49,17 +51,17 @@ export function InstructorsPage() {
               onChange={(e) => setGroupFilter(e.target.value as LearnerGroupId | 'all')}
               wrapperClassName="flex-1 sm:w-48 sm:flex-none"
             >
-              <option value="all">All learners</option>
+              <option value="all">{m.instructors.allLearners}</option>
               {(Object.keys(learnerGroupLabels) as LearnerGroupId[]).map((id) => (
                 <option key={id} value={id}>
-                  {learnerGroupLabels[id]}
+                  {loc.learnerGroup(id).title}
                 </option>
               ))}
             </Select>
           </div>
           <div className="flex items-center gap-3">
             <label htmlFor="language-filter" className="w-16 shrink-0 text-xs font-medium text-co-muted sm:w-auto">
-              Language
+              {m.instructors.languageFilter}
             </label>
             <Select
               id="language-filter"
@@ -67,10 +69,10 @@ export function InstructorsPage() {
               onChange={(e) => setLanguageFilter(e.target.value)}
               wrapperClassName="flex-1 sm:w-44 sm:flex-none"
             >
-              <option value="all">All languages</option>
+              <option value="all">{m.instructors.allLanguages}</option>
               {languages.map((lang) => (
                 <option key={lang} value={lang}>
-                  {lang}
+                  {loc.language(lang)}
                 </option>
               ))}
             </Select>
@@ -87,19 +89,19 @@ export function InstructorsPage() {
                 <p className="font-medium text-co-ink">
                   {instructor.name} {instructor.chineseName && <span className="text-sm font-normal text-co-muted">{instructor.chineseName}</span>}
                 </p>
-                <p className="text-xs text-co-muted">{instructor.title}</p>
+                <p className="text-xs text-co-muted">{loc.instructor(instructor).title}</p>
               </div>
             </div>
 
-            <p className="text-sm leading-relaxed text-co-muted">{instructor.bio}</p>
+            <p className="text-sm leading-relaxed text-co-muted">{loc.instructor(instructor).bio}</p>
             {instructor.qualifications && (
               <p className="text-xs text-co-muted">
-                {instructor.qualifications.yearsTeaching} years teaching · {instructor.qualifications.certifications[0]}
+                {m.instructors.yearsAndCert(instructor.qualifications.yearsTeaching, loc.instructor(instructor).qualifications!.certifications[0])}
               </p>
             )}
 
             <div className="flex flex-wrap gap-1.5">
-              {instructor.specialties.map((specialty) => (
+              {loc.instructor(instructor).specialties.map((specialty) => (
                 <span key={specialty} className="rounded-full bg-co-sage/25 px-2.5 py-1 text-[11px] font-medium text-co-sage-dark">
                   {specialty}
                 </span>
@@ -107,13 +109,13 @@ export function InstructorsPage() {
             </div>
 
             <ButtonLink to={`/instructors/${instructor.id}`} variant="primary" size="sm" className="mt-auto">
-              View profile &amp; book
+              {m.instructors.viewAndBook}
             </ButtonLink>
           </Card>
         ))}
         {filteredInstructors.length === 0 && (
           <p className="rounded-co-md border border-dashed border-co-line bg-co-paper p-6 text-sm text-co-muted sm:col-span-2 lg:col-span-3">
-            No instructors match those filters yet.
+            {m.instructors.noMatches}
           </p>
         )}
       </div>

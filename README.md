@@ -60,8 +60,12 @@ Then open the printed local URL (typically `http://localhost:5173`).
   confirmation and download an `.ics` file. *My Learning Space* shows payment
   and meeting-link status, package credits, and lets you reschedule or cancel
   (with the draft policy shown first).
-- **As an instructor**: use the **Student / Instructor** toggle in the header,
-  pick who you're "acting as," then visit *Teaching Studio* (booking, payment
+- **Sign in**: students and instructors have separate accounts on the *Sign in*
+  page (email only, no password yet; email verification comes later). Use the
+  one-click demo accounts, or any email to register as a student.
+- **Language**: switch between English and 简体中文 with the **EN | 中文**
+  control in the header (or *Account settings*); links like `/?lang=zh` work too.
+- **As an instructor**: sign in with a demo instructor account, then visit *Teaching Studio* (booking, payment
   and meeting status per appointment) and *Availability* (weekly hours,
   date exceptions, preferred meeting platform). Changes apply immediately to
   what students see.
@@ -79,7 +83,8 @@ src/
   lib/checkout/      Booking/order/payment state machine, money, credits, status labels
   lib/dates, lib/ics, lib/validation   Formatting, calendar export, form validation helpers
   services/          Checkout lifecycle, mock payment provider, migrations, localStorage persistence
-  state/             AppDataContext — single source of truth + mutation actions
+  state/             AppDataContext — data, session (sign-in) and mutation actions
+  i18n/              English + Simplified Chinese strings, content overlays, useI18n hook
   components/        Shared UI primitives, layout, and booking UI
   pages/             Routed pages (home, courses, instructors, booking wizard, checkout, FAQ, dashboards)
 e2e/                 Playwright end-to-end specs

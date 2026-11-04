@@ -1,4 +1,5 @@
 import type { Instructor } from '@/types';
+import { useI18n } from '@/i18n/useI18n';
 
 type Size = 'sm' | 'md' | 'lg';
 
@@ -14,13 +15,14 @@ const avatarSizes: Record<Exclude<Size, 'lg'>, string> = {
  * No stock photos stand in for real people.
  */
 export function Portrait({ instructor, size = 'md', showLabel = false }: { instructor: Instructor; size?: Size; showLabel?: boolean }) {
+  const { m } = useI18n();
   const isLarge = size === 'lg';
 
   if (instructor.photoUrl) {
     return (
       <img
         src={instructor.photoUrl}
-        alt={`Portrait of ${instructor.name}`}
+        alt={instructor.name}
         className={isLarge ? 'aspect-[4/5] w-full rounded-co-lg object-cover' : `${avatarSizes[size]} rounded-full object-cover`}
       />
     );
@@ -40,7 +42,7 @@ export function Portrait({ instructor, size = 'md', showLabel = false }: { instr
   return (
     <div
       role="img"
-      aria-label={`Illustrated placeholder portrait for ${instructor.name}`}
+      aria-label={m.profile.portraitLabel(instructor.name)}
       className={`relative aspect-[4/5] w-full overflow-hidden rounded-co-lg ${instructor.avatarColorClass}`}
     >
       <svg viewBox="0 0 100 125" className="absolute inset-0 h-full w-full" aria-hidden="true" preserveAspectRatio="xMidYMax slice">
@@ -51,7 +53,7 @@ export function Portrait({ instructor, size = 'md', showLabel = false }: { instr
         {instructor.avatarInitials}
       </span>
       {showLabel && (
-        <span className="absolute left-3 top-3 rounded-full bg-co-paper/90 px-2 py-0.5 text-[10px] font-medium text-co-muted">Demo portrait</span>
+        <span className="absolute left-3 top-3 rounded-full bg-co-paper/90 px-2 py-0.5 text-[10px] font-medium text-co-muted">{m.profile.demoPortrait}</span>
       )}
     </div>
   );

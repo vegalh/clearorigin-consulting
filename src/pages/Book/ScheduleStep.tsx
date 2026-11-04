@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Portrait } from '@/components/ui/Portrait';
 import { SlotPicker } from '@/components/booking/SlotPicker';
-import { formatDisplayDate, formatDisplayTime, supportedTimezones } from '@/lib/dates/format';
+import { supportedTimezones } from '@/lib/dates/format';
+import { useI18n } from '@/i18n/useI18n';
 import { SelectedCourseSummary } from './SelectedCourseSummary';
 import type { BookingSelection } from './BookPage';
 
@@ -20,6 +21,7 @@ export function ScheduleStep({
   onChange: (patch: Record<string, string | null>) => void;
 }) {
   const { data, viewerTimezone, setViewerTimezone } = useAppData();
+  const { m, loc, fmt } = useI18n();
   const instructors = data.instructors.filter((i) => (i.courseIds ?? []).includes(course.id));
   const instructor = instructors.find((i) => i.id === selection.instructorId);
   const sessionType = data.sessionTypes.find((s) => s.id === course.sessionTypeId);
@@ -30,12 +32,12 @@ export function ScheduleStep({
     <div className={`grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px] ${instructor && selectedSlot ? 'max-lg:pb-20' : ''}`}>
       <div className="min-w-0 space-y-6">
         <div>
-          <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink sm:text-3xl">Choose an instructor and time</h1>
-          <p className="mt-2 text-sm text-co-muted">Showing instructors who teach the {course.title}.</p>
+          <h1 className="font-serif text-2xl font-medium tracking-tight text-co-ink sm:text-3xl">{m.book.scheduleTitle}</h1>
+          <p className="mt-2 text-sm text-co-muted">{m.book.showingInstructorsFor(loc.course(course).title)}</p>
         </div>
 
         <fieldset>
-          <legend className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Instructor</legend>
+          <legend className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.book.instructor}</legend>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {instructors.map((i) => {
               const active = i.id === instructor?.id;
@@ -56,8 +58,8 @@ export function ScheduleStep({
                   />
                   <Portrait instructor={i} size="sm" />
                   <span className="min-w-0">
-                    <span className="block font-medium text-co-ink">{i.name}</span>
-                    <span className="block text-xs text-co-muted">{i.specialties.join(' · ')}</span>
+                    <span className="block font-medium text-co-ink">{loc.instructorName(i)}</span>
+                    <span className="block text-xs text-co-muted">{loc.instructor(i).specialties.join(' · ')}</span>
                   </span>
                 </label>
               );
@@ -68,9 +70,9 @@ export function ScheduleStep({
         {instructor && (
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Available times with {instructor.name.split(' ')[0]}</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.book.availableWith(loc.shortName(instructor))}</h2>
               <label className="flex w-full min-w-0 items-center gap-2 text-xs text-co-muted sm:w-auto">
-                <span className="shrink-0">Showing times in</span>
+                <span className="shrink-0">{m.common.showingTimesIn}</span>
                 <Select
                   size="sm"
                   value={viewerTimezone}
@@ -79,7 +81,7 @@ export function ScheduleStep({
                 >
                   {supportedTimezones().map((tz) => (
                     <option key={tz} value={tz}>
-                      {tz.replace('_', ' ')}
+                      {loc.timezone(tz)}
                     </option>
                   ))}
                 </Select>
@@ -106,7 +108,7 @@ export function ScheduleStep({
           onChangeCourse={() => onChange({ step: 'course' })}
         />
         <Button variant="primary" className="w-full max-lg:hidden" disabled={!instructor || !selectedSlot} onClick={() => onChange({ step: 'details' })}>
-          Continue to details
+          {m.book.continueToDetails}
         </Button>
       </aside>
 
@@ -115,11 +117,11 @@ export function ScheduleStep({
         <div className="fixed inset-x-0 bottom-0 z-10 border-t border-co-line bg-co-paper/95 px-4 py-3 backdrop-blur lg:hidden">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
             <p className="min-w-0 text-xs text-co-muted">
-              <span className="block truncate font-medium text-co-ink">{formatDisplayDate(selectedSlot.startUtc, viewerTimezone)}</span>
-              {formatDisplayTime(selectedSlot.startUtc, viewerTimezone)} with {instructor.name.split(' ')[0]}
+              <span className="block truncate font-medium text-co-ink">{fmt.date(selectedSlot.startUtc, viewerTimezone)}</span>
+              {m.book.timeWith(fmt.time(selectedSlot.startUtc, viewerTimezone), loc.shortName(instructor))}
             </p>
             <Button variant="primary" size="sm" className="shrink-0" onClick={() => onChange({ step: 'details' })}>
-              Continue to details
+              {m.book.continueToDetails}
             </Button>
           </div>
         </div>

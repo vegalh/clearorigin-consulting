@@ -34,3 +34,22 @@ export async function reachTrialCheckout(page: Page) {
   await expect(page.getByRole('heading', { name: 'Review and pay' })).toBeVisible();
   await expect(page.getByRole('timer')).toBeVisible();
 }
+
+/** One-click demo sign-in from the login page (stands in until email verification exists). */
+export async function signInAsStudent(page: Page, name = 'Alex Johnson') {
+  await page.goto('/login');
+  await page.getByRole('button', { name: `Continue as ${name} (demo student)` }).click();
+  await expect(page).toHaveURL(/\/bookings$/);
+}
+
+export async function signInAsInstructor(page: Page, name = 'Maya Chen') {
+  await page.goto('/login?role=instructor');
+  await page.getByRole('button', { name: `Continue as ${name} (demo instructor)` }).click();
+  await expect(page).toHaveURL(/\/instructor\/dashboard$/);
+}
+
+export async function signOut(page: Page) {
+  await page.goto('/account');
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible();
+}

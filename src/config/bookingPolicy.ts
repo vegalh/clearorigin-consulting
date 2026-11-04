@@ -24,12 +24,3 @@ export const bookingPolicy: BookingPolicy = {
   status: 'proposed',
 };
 
-/** Plain-language summary shown at checkout and before cancelling. */
-export function policySummary(policy: BookingPolicy = bookingPolicy): string[] {
-  return [
-    `Your time is held for ${policy.holdMinutes} minutes while you check out. Unpaid holds are released automatically.`,
-    `You can reschedule up to ${policy.rescheduleNoticeHours} hours before the lesson starts.`,
-    `Cancelling at least ${policy.cancellationNoticeHours} hours ahead returns a package credit, or opens a refund review for paid lessons. Later cancellations may not be eligible.`,
-    'Refunds are reviewed by ClearOrigin and are never automatic in this prototype.',
-  ];
-}

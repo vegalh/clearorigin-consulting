@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { fillSelfDetails, pickFirstTime, reachTrialCheckout, scheduleWith } from './helpers';
+import { fillSelfDetails, pickFirstTime, reachTrialCheckout, scheduleWith, signInAsInstructor, signOut } from './helpers';
 
 test.describe('Checkout, holds and simulated payment', () => {
   test('a failed payment does not confirm; a retry succeeds', async ({ page }) => {
@@ -84,9 +84,8 @@ test.describe('Checkout, holds and simulated payment', () => {
     await expect(page.getByText('Booked by parent/guardian')).toBeVisible();
 
     // The instructor sees the learner and the guardian without any payment details.
-    await page.getByRole('button', { name: 'Instructor', exact: true }).click();
-    await page.getByLabel('Acting as instructor').selectOption('liang-wu');
-    await page.getByRole('link', { name: 'Teaching Studio' }).click();
+    await signOut(page);
+    await signInAsInstructor(page, 'Liang Wu');
     await expect(page.getByText(/Mia · booked by Jordan Example \(guardian\)/)).toBeVisible();
     await expect(page.getByText('Card payment — Demo')).toHaveCount(0);
   });

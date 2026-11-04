@@ -180,3 +180,57 @@ Things to try:
 - Switch the header toggle to **Instructor** → **Teaching Studio** for
   booking/payment status, and **Availability** → *Meeting platform*.
 - The footer's **Reset demo data** restores the seed at any time.
+
+## 8. Update: separate accounts and a Chinese version
+
+**Accounts (`/login`, `/account`)**
+- Students and instructors sign in separately; the header's Student/Instructor
+  toggle and "Acting as" picker are gone.
+- Students sign in or register with an email. Instructors must use the email
+  on their pre-provisioned instructor account (`…@instructors.example.com` in
+  the demo). One-click demo accounts stand in until email verification exists.
+  There is no password, and accounts are labeled "Not verified".
+- Signing in returns you to the page you were trying to reach.
+  `RequireRole` keeps `/bookings`, checkout and confirmation student-only, and
+  `/instructor/*` instructor-only. The wrong role sees an explanation and
+  "Sign out and switch account".
+- Account settings: students edit name and email (kept unique); instructors
+  see their ClearOrigin-managed details plus the meeting-platform setting.
+  Both can change display language and timezone, and sign out.
+- Guest checkout: a signed-out visitor who books is signed into the student
+  account for the email they entered (found or created). Instructor accounts
+  cannot book.
+- Checkout and confirmation pages only open for the student who owns the
+  booking.
+- Schema v3 adds instructor sign-in emails. v2 data migrates in place,
+  refreshing instructor profiles and keeping everything else, with a backup.
+  The session is stored separately and synced across tabs.
+
+**Chinese / English (`src/i18n/`)**
+- An EN | 中文 switch in the header, plus a display-language setting. The
+  choice is remembered per device; `?lang=zh` links work. It defaults to the
+  browser language, and `<html lang>` is set to `zh-CN` or `en`.
+- `en.ts` defines every UI string. `zh.ts` is typed against it, so a missing
+  key fails the build. Course, instructor, FAQ, home-page, learner-option and
+  payment-method copy are translated through overlays in `zhContent.ts`, while
+  the persisted data stays English at the source.
+- Dates and times use Chinese formats (`11月5日 星期四`, 24-hour times,
+  `周四` in the day picker). Service error messages are translated by lookup.
+  A unit test fails if any fixed service message lacks a translation.
+- Not translated: the `.ics` calendar text, the demo data's own names, and
+  timezone names (IANA identifiers).
+- The Chinese is a prototype translation in Simplified Chinese. It needs
+  review by a native speaker at ClearOrigin before launch.
+
+**Tests:** 100 unit (+11: account service, v2→v3 migration, translation
+completeness and service-message coverage) and 94 e2e (+17 across both
+projects: sign-in redirects, registration, instructor email sign-in, role
+separation, account settings, guest checkout, instructor can't book, a
+Chinese language switch, a full Chinese booking, and translated content).
+The overflow check now runs in both languages at all seven widths, signed out
+and signed in as each role.
+
+**Production next steps:** real authentication with email verification
+(magic link or one-time code) and server-side sessions; instructor
+provisioning and roles enforced by the API; translations moved into a CMS or
+translation workflow, with a professional review of the Chinese copy.

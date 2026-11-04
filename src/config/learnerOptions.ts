@@ -29,5 +29,3 @@ export const learnerGroupLabels: Record<LearnerGroupId, string> = {
   conversational: 'Conversational learners',
 };
 
-export const labelForLevel = (level: ChineseLevel) => chineseLevelOptions.find((o) => o.value === level)?.label ?? level;
-export const labelForGoal = (goal: LearningGoal) => learningGoalOptions.find((o) => o.value === goal)?.label ?? goal;

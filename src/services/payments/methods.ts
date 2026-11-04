@@ -1,4 +1,4 @@
-import type { CurrencyCode, PaymentMethodId } from '@/types';
+import type { CurrencyCode } from '@/types';
 import type { PaymentMethodInfo } from './types';
 
 /**
@@ -35,6 +35,3 @@ export function methodsForCurrency(currency: CurrencyCode): PaymentMethodInfo[] 
   return paymentMethods.filter((m) => m.currencies.includes(currency));
 }
 
-export function paymentMethodLabel(id: PaymentMethodId): string {
-  return paymentMethods.find((m) => m.id === id)?.label ?? id;
-}

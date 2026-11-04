@@ -1,95 +1,84 @@
 import { NavLink } from 'react-router-dom';
 import { useAppData } from '@/state/AppDataContext';
+import { useI18n } from '@/i18n/useI18n';
 import { ButtonLink } from '@/components/ui/Button';
-import { Select } from '@/components/ui/Select';
-
-const studentNavLinks = [
-  { to: '/courses', label: 'Courses & Pricing' },
-  { to: '/instructors', label: 'Instructors' },
-  { to: '/faq', label: 'FAQ' },
-  { to: '/bookings', label: 'My Learning Space' },
-];
-
-const instructorNavLinks = [
-  { to: '/instructor/dashboard', label: 'Teaching Studio' },
-  { to: '/instructor/availability', label: 'Availability' },
-];
+import { LanguageSwitch } from './LanguageSwitch';
 
 function navLinkClass(isActive: boolean): string {
   return `whitespace-nowrap text-sm font-medium transition-colors ${isActive ? 'text-co-orange-dark' : 'text-co-muted hover:text-co-ink'}`;
 }
 
 export function Header() {
-  const { role, setRole, data, currentInstructorId, setCurrentInstructorId } = useAppData();
-  const links = role === 'student' ? studentNavLinks : instructorNavLinks;
+  const { role, data, currentStudentId, currentInstructorId } = useAppData();
+  const { m, loc } = useI18n();
+
+  const links =
+    role === 'instructor'
+      ? [
+          { to: '/instructor/dashboard', label: m.nav.studio },
+          { to: '/instructor/availability', label: m.nav.availability },
+        ]
+      : [
+          { to: '/courses', label: m.nav.courses },
+          { to: '/instructors', label: m.nav.instructors },
+          { to: '/faq', label: m.nav.faq },
+          { to: '/bookings', label: m.nav.learningSpace },
+        ];
+
+  const instructor = data.instructors.find((i) => i.id === currentInstructorId);
+  const student = data.students.find((s) => s.id === currentStudentId);
+  const accountName = instructor ? loc.instructorName(instructor) : student?.fullName;
 
   return (
     <header className="border-b border-co-line bg-co-paper">
       {/*
-        Mobile: logo + role toggle on the first row, nav (+ instructor picker) on a
-        second full-width row. md+: a single row with nav beside the logo.
+        Mobile: logo + language/account on the first row, nav on a second
+        full-width row (scrolls inside the header if needed). lg+: one row.
       */}
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6 sm:py-4">
-        <NavLink to="/" aria-label="ClearOrigin home" className="order-1 flex shrink-0 items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-co-ink text-sm font-semibold text-co-bg">
-            CO
-          </span>
+        <NavLink to="/" aria-label={m.nav.homeLabel} className="order-1 flex shrink-0 items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-co-ink text-sm font-semibold text-co-bg">CO</span>
           <span className="font-serif text-base font-medium tracking-tight text-co-ink max-[359px]:hidden">ClearOrigin</span>
         </NavLink>
 
-        <div className="order-3 flex w-full min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-co-line pt-3 lg:order-2 lg:w-auto lg:flex-1 lg:border-0 lg:pt-0">
-          <nav aria-label="Main" className="no-scrollbar flex min-w-0 max-w-full items-center gap-5 overflow-x-auto lg:gap-6">
+        <div className="order-3 flex w-full min-w-0 items-center border-t border-co-line pt-3 lg:order-2 lg:w-auto lg:flex-1 lg:border-0 lg:pt-0">
+          <nav aria-label={m.nav.main} className="no-scrollbar flex min-w-0 max-w-full items-center gap-5 overflow-x-auto lg:gap-6">
             {links.map((link) => (
               <NavLink key={link.to} to={link.to} className={({ isActive }) => navLinkClass(isActive)}>
                 {link.label}
               </NavLink>
             ))}
           </nav>
-
-          {role === 'instructor' && (
-            <Select
-              aria-label="Acting as instructor"
-              size="sm"
-              value={currentInstructorId}
-              onChange={(e) => setCurrentInstructorId(e.target.value)}
-              wrapperClassName="w-full sm:w-auto"
-            >
-              {data.instructors.map((instructor) => (
-                <option key={instructor.id} value={instructor.id}>
-                  Acting as {instructor.name}
-                </option>
-              ))}
-            </Select>
-          )}
         </div>
 
-        <div className="order-2 flex items-center gap-3 lg:order-3">
-          <div className="flex items-center rounded-full border border-co-line p-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setRole('student')}
-              className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
-                role === 'student' ? 'bg-co-orange-dark text-white' : 'text-co-muted hover:text-co-ink'
-              }`}
-              aria-pressed={role === 'student'}
+        <div className="order-2 flex items-center gap-2 sm:gap-3 lg:order-3">
+          <LanguageSwitch />
+          {accountName ? (
+            <NavLink
+              to="/account"
+              aria-label={m.nav.accountFor(accountName)}
+              className={({ isActive }) =>
+                `flex max-w-[10rem] items-center gap-2 rounded-full border px-2 py-1 text-xs font-medium transition-colors sm:max-w-[14rem] ${
+                  isActive ? 'border-co-orange-dark text-co-orange-dark' : 'border-co-line text-co-ink hover:border-co-orange-dark'
+                }`
+              }
             >
-              Student
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole('instructor')}
-              className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
-                role === 'instructor' ? 'bg-co-orange-dark text-white' : 'text-co-muted hover:text-co-ink'
-              }`}
-              aria-pressed={role === 'instructor'}
-            >
-              Instructor
-            </button>
-          </div>
-
-          {role === 'student' && (
-            <ButtonLink to="/book" variant="primary" size="sm" className="max-sm:hidden">
-              Book a Session
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-co-ink text-[10px] font-semibold text-co-bg">
+                {accountName.slice(0, 1).toUpperCase()}
+              </span>
+              <span className="truncate max-sm:hidden">{accountName}</span>
+              <span className="shrink-0 rounded-full bg-co-sage/25 px-1.5 py-0.5 text-[10px] text-co-sage-dark">
+                {role === 'instructor' ? m.nav.instructorBadge : m.nav.studentBadge}
+              </span>
+            </NavLink>
+          ) : (
+            <ButtonLink to="/login" variant="outline" size="sm">
+              {m.nav.signIn}
+            </ButtonLink>
+          )}
+          {role !== 'instructor' && (
+            <ButtonLink to="/book" variant="primary" size="sm" className="max-md:hidden">
+              {m.nav.bookASession}
             </ButtonLink>
           )}
         </div>

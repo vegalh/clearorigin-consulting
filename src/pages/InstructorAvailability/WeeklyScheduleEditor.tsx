@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { RecurringAvailability, Weekday } from '@/types';
-import { WEEKDAY_LABELS } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { inputClass } from '@/components/ui/fieldStyles';
+import { useI18n } from '@/i18n/useI18n';
 
 interface DayRow {
   weekday: Weekday;
@@ -40,6 +40,8 @@ export function WeeklyScheduleEditor({
   // effect is needed to re-sync state from props.
   const [rows, setRows] = useState<DayRow[]>(() => buildRows(instructorId, rules));
   const [saved, setSaved] = useState(false);
+  const { m } = useI18n();
+  const dayName = (weekday: Weekday) => m.availability.weekdays[weekday];
 
   const updateRow = (weekday: Weekday, patch: Partial<DayRow>) => {
     setSaved(false);
@@ -62,7 +64,7 @@ export function WeeklyScheduleEditor({
 
   return (
     <Card>
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Weekly recurring schedule</h2>
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.availability.weekly}</h2>
       <div className="mt-4 space-y-3">
         {rows.map((row) => (
           <div key={row.weekday} className="flex flex-col gap-2 border-b border-co-line pb-3 last:border-0 sm:flex-row sm:items-center sm:gap-3">
@@ -73,37 +75,37 @@ export function WeeklyScheduleEditor({
                 checked={row.enabled}
                 onChange={(e) => updateRow(row.weekday, { enabled: e.target.checked })}
               />
-              {WEEKDAY_LABELS[row.weekday]}
+              {dayName(row.weekday)}
             </label>
             {row.enabled ? (
               <div className="flex items-center gap-2 text-sm sm:w-auto">
                 <input
                   type="time"
                   value={row.startTime}
-                  aria-label={`${WEEKDAY_LABELS[row.weekday]} start time`}
+                  aria-label={m.availability.startTime(dayName(row.weekday))}
                   onChange={(e) => updateRow(row.weekday, { startTime: e.target.value })}
                   className={`${inputClass} min-w-0 flex-1 py-1.5 sm:w-32 sm:flex-none`}
                 />
-                <span className="text-co-muted">to</span>
+                <span className="text-co-muted">{m.common.to}</span>
                 <input
                   type="time"
                   value={row.endTime}
-                  aria-label={`${WEEKDAY_LABELS[row.weekday]} end time`}
+                  aria-label={m.availability.endTime(dayName(row.weekday))}
                   onChange={(e) => updateRow(row.weekday, { endTime: e.target.value })}
                   className={`${inputClass} min-w-0 flex-1 py-1.5 sm:w-32 sm:flex-none`}
                 />
               </div>
             ) : (
-              <span className="pl-6 text-sm text-co-muted sm:pl-0">Unavailable</span>
+              <span className="pl-6 text-sm text-co-muted sm:pl-0">{m.common.unavailable}</span>
             )}
           </div>
         ))}
       </div>
       <div className="mt-4 flex items-center gap-3">
         <Button variant="primary" size="sm" onClick={handleSave}>
-          Save weekly schedule
+          {m.availability.save}
         </Button>
-        {saved && <span className="text-xs font-medium text-co-sage-dark">Saved</span>}
+        {saved && <span className="text-xs font-medium text-co-sage-dark">{m.availability.saved}</span>}
       </div>
     </Card>
   );

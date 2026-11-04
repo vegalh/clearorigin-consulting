@@ -12,7 +12,7 @@ import { Portrait } from '@/components/ui/Portrait';
 import { CoursePrice } from '@/components/booking/CourseCard';
 import { SlotPicker } from '@/components/booking/SlotPicker';
 import { supportedTimezones } from '@/lib/dates/format';
-import { learnerGroupLabels } from '@/config/learnerOptions';
+import { useI18n } from '@/i18n/useI18n';
 
 function DetailList({ title, items }: { title: string; items: string[] }) {
   if (items.length === 0) return null;
@@ -32,6 +32,7 @@ export function InstructorProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data, viewerTimezone, setViewerTimezone } = useAppData();
+  const { m, loc } = useI18n();
 
   const instructor = data.instructors.find((i) => i.id === id);
   // The quick-availability picker offers the instructor's bookable trial/single courses (packages go through the full flow).
@@ -63,7 +64,9 @@ export function InstructorProfilePage() {
     navigate(`/book?${params.toString()}`);
   };
 
-  const { qualifications, approach } = instructor;
+  const copy = loc.instructor(instructor);
+  const { qualifications, approach } = copy;
+  const firstName = loc.shortName(instructor);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -76,34 +79,34 @@ export function InstructorProfilePage() {
             <h1 className="mt-5 font-serif text-2xl font-medium tracking-tight text-co-ink">
               {instructor.name} {instructor.chineseName && <span className="text-lg font-normal text-co-muted">{instructor.chineseName}</span>}
             </h1>
-            <p className="text-sm text-co-muted">{instructor.title}</p>
-            <p className="mt-4 text-sm leading-relaxed text-co-muted">{instructor.bio}</p>
+            <p className="text-sm text-co-muted">{copy.title}</p>
+            <p className="mt-4 text-sm leading-relaxed text-co-muted">{copy.bio}</p>
             <div className="mt-4 flex flex-wrap gap-1.5">
-              {instructor.specialties.map((specialty) => (
+              {copy.specialties.map((specialty) => (
                 <span key={specialty} className="rounded-full bg-co-sage/25 px-2.5 py-1 text-[11px] font-medium text-co-sage-dark">
                   {specialty}
                 </span>
               ))}
             </div>
             <p className="mt-4 text-xs text-co-muted">
-              Speaks: {instructor.languages.join(', ')}
+              {m.profile.speaks(copy.languages.join(', '))}
               <br />
-              Instructor's local timezone: {instructor.timezone.replace('_', ' ')}
+              {m.profile.localTimezone(loc.timezone(instructor.timezone))}
             </p>
-            <p className="mt-3 text-[11px] text-co-muted">Fictional demo profile — not a real ClearOrigin instructor.</p>
+            <p className="mt-3 text-[11px] text-co-muted">{m.profile.fictional}</p>
           </Card>
 
           {qualifications && (
             <Card>
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Qualifications</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.profile.qualifications}</h2>
               <div className="mt-4 space-y-4">
                 <p className="text-sm text-co-ink">
-                  <span className="font-serif text-2xl font-medium">{qualifications.yearsTeaching}</span> years teaching Chinese
+                  <span className="font-serif text-2xl font-medium">{qualifications.yearsTeaching}</span> {m.profile.yearsTeaching}
                 </p>
-                <DetailList title="Education" items={qualifications.education} />
-                <DetailList title="Certifications" items={qualifications.certifications} />
-                <DetailList title="Teaching credentials" items={qualifications.credentials} />
-                <DetailList title="Experience" items={qualifications.experience} />
+                <DetailList title={m.profile.education} items={qualifications.education} />
+                <DetailList title={m.profile.certifications} items={qualifications.certifications} />
+                <DetailList title={m.profile.credentials} items={qualifications.credentials} />
+                <DetailList title={m.profile.experience} items={qualifications.experience} />
               </div>
             </Card>
           )}
@@ -112,8 +115,8 @@ export function InstructorProfilePage() {
         <div className="min-w-0 space-y-4 sm:space-y-6">
           <Card>
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Introduction video</h2>
-              <DemoLabel>Placeholder</DemoLabel>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.profile.introVideo}</h2>
+              <DemoLabel>{m.common.placeholder}</DemoLabel>
             </div>
             <div className="mt-4 aspect-video w-full overflow-hidden rounded-co-md bg-co-ink/90">
               {instructor.introVideoUrl ? (
@@ -124,8 +127,8 @@ export function InstructorProfilePage() {
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-6 text-center text-co-bg/80">
                   <PlayCircle className="h-10 w-10" aria-hidden="true" />
-                  <p className="text-sm font-medium">Intro video placeholder</p>
-                  <p className="max-w-xs text-xs text-co-bg/60">A short introduction from {instructor.name.split(' ')[0]} would play here once provided.</p>
+                  <p className="text-sm font-medium">{m.profile.videoPlaceholder}</p>
+                  <p className="max-w-xs text-xs text-co-bg/60">{m.profile.videoPlaceholderBody(firstName)}</p>
                 </div>
               )}
             </div>
@@ -133,20 +136,20 @@ export function InstructorProfilePage() {
 
           {approach && (
             <Card>
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Teaching approach</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.profile.approach}</h2>
               <p className="mt-4 font-serif text-lg leading-relaxed text-co-ink">“{approach.philosophy}”</p>
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <DetailList title="Preferred methods" items={approach.methods} />
-                <DetailList title="Works especially well with" items={approach.learnerGroups.map((g) => learnerGroupLabels[g])} />
+                <DetailList title={m.profile.methods} items={approach.methods} />
+                <DetailList title={m.profile.worksWellWith} items={approach.learnerGroups.map((g) => loc.learnerGroup(g).title)} />
               </div>
             </Card>
           )}
 
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">1. Choose a course</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.profile.chooseCourse}</h2>
               <ButtonLink to={`/book?instructor=${instructor.id}`} variant="ghost" size="sm">
-                All courses with {instructor.name.split(' ')[0]}
+                {m.profile.allCoursesWith(firstName)}
               </ButtonLink>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -163,8 +166,8 @@ export function InstructorProfilePage() {
                     course?.id === c.id ? 'border-co-orange-dark bg-co-pale/40' : 'border-co-line hover:border-co-orange-dark'
                   }`}
                 >
-                  <p className="font-medium text-co-ink">{c.title}</p>
-                  <p className="mt-1 text-xs text-co-muted">{c.durationMinutes} minutes</p>
+                  <p className="font-medium text-co-ink">{loc.course(c).title}</p>
+                  <p className="mt-1 text-xs text-co-muted">{m.common.minutes(c.durationMinutes)}</p>
                   <div className="mt-2">
                     <CoursePrice course={c} />
                   </div>
@@ -173,9 +176,9 @@ export function InstructorProfilePage() {
             </div>
             {packageCourses.length > 0 && (
               <p className="mt-4 text-xs text-co-muted">
-                Also teaches {packageCourses.map((p) => p.title).join(' and ')}.{' '}
+                {m.profile.alsoTeaches(packageCourses.map((p) => loc.course(p).title).join(m.profile.and))}{' '}
                 <Link to={`/book?instructor=${instructor.id}`} className="font-medium text-co-orange-dark underline underline-offset-2">
-                  Book a package
+                  {m.profile.bookPackage}
                 </Link>
               </p>
             )}
@@ -183,9 +186,9 @@ export function InstructorProfilePage() {
 
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">2. Pick a time</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">{m.profile.pickTime}</h2>
               <label className="flex w-full min-w-0 items-center gap-2 text-xs text-co-muted sm:w-auto">
-                <span className="shrink-0">Showing times in</span>
+                <span className="shrink-0">{m.common.showingTimesIn}</span>
                 <Select
                   size="sm"
                   value={viewerTimezone}
@@ -194,7 +197,7 @@ export function InstructorProfilePage() {
                 >
                   {supportedTimezones().map((tz) => (
                     <option key={tz} value={tz}>
-                      {tz.replace('_', ' ')}
+                      {loc.timezone(tz)}
                     </option>
                   ))}
                 </Select>
@@ -207,7 +210,7 @@ export function InstructorProfilePage() {
           </Card>
 
           <Button variant="primary" disabled={!selectedSlot} onClick={handleContinue} className="w-full sm:w-auto">
-            Continue to details
+            {m.profile.continueToDetails}
           </Button>
         </div>
       </div>

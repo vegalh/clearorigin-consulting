@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 import { BOOKING_STEPS, type BookingStep } from './bookingSteps';
+import { useI18n } from '@/i18n/useI18n';
 
 /**
  * Course → Schedule → Details → Payment → Confirmation. On phones it collapses
@@ -7,12 +8,13 @@ import { BOOKING_STEPS, type BookingStep } from './bookingSteps';
  * without crowding the screen.
  */
 export function BookingProgress({ current }: { current: BookingStep }) {
+  const { m } = useI18n();
   const index = BOOKING_STEPS.indexOf(current);
   return (
-    <nav aria-label="Booking progress" className="mb-8">
+    <nav aria-label={m.progress.label} className="mb-8">
       <div className="sm:hidden">
         <p className="text-xs font-medium text-co-muted">
-          Step {index + 1} of {BOOKING_STEPS.length} · <span className="text-co-ink">{current}</span>
+          {m.progress.stepOf(index + 1, BOOKING_STEPS.length)} · <span className="text-co-ink">{m.progress.steps[current]}</span>
         </p>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-co-line">
           <div className="h-full rounded-full bg-co-orange-dark" style={{ width: `${((index + 1) / BOOKING_STEPS.length) * 100}%` }} />
@@ -34,7 +36,7 @@ export function BookingProgress({ current }: { current: BookingStep }) {
               >
                 {state === 'done' ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : i + 1}
               </span>
-              <span className={`whitespace-nowrap text-sm ${state === 'current' ? 'font-medium text-co-ink' : 'text-co-muted'}`}>{step}</span>
+              <span className={`whitespace-nowrap text-sm ${state === 'current' ? 'font-medium text-co-ink' : 'text-co-muted'}`}>{m.progress.steps[step]}</span>
               {i < BOOKING_STEPS.length - 1 && <span className="mx-1 h-px flex-1 bg-co-line" aria-hidden="true" />}
             </li>
           );
