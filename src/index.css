@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens reused from the live clearoriginconsulting.com marketing
+ * site: warm off-white surfaces, deep green primary, pale green accents,
+ * warm orange highlight, tight editorial headings, pill-shaped buttons.
+ */
+@theme {
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-co-bg: #f7f5ef;
+  --color-co-paper: #fffdf8;
+  --color-co-ink: #1c2521;
+  --color-co-muted: #65706b;
+  --color-co-green: #315c4d;
+  --color-co-green-dark: #22413690;
+  --color-co-pale: #dcebe3;
+  --color-co-line: #dfe2da;
+  --color-co-orange: #c87a45;
+
+  --radius-co-sm: 12px;
+  --radius-co-md: 20px;
+  --radius-co-lg: 28px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-co-bg);
+  color: var(--color-co-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Keep motion subtle and purposeful, never decorative. */
+* {
+  transition-timing-function: ease;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-co-green);
+  outline-offset: 2px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
