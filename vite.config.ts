@@ -5,6 +5,8 @@ import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Set by the GitHub Pages workflow (e.g. '/clearorigin-consulting/'); root for local dev, preview and e2e.
+  base: process.env.VITE_BASE ?? '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
