@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/*
+ * "A Place for Conversation" design tokens — a warm, human palette built
+ * around paper surfaces, deep cocoa text, and a single saturated tangerine
+ * accent reserved for calls to action and selections (see
+ * docs/WARM_REDESIGN_PLAN.md for the full rationale and contrast checks).
+ */
+@theme {
+  --font-sans: "DM Sans", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Fraunces", "Noto Serif SC", Georgia, serif;
+
+  --color-co-bg: #fff8ef;
+  --color-co-paper: #fffefa;
+  --color-co-ink: #44332b;
+  --color-co-muted: #7d6a5a;
+  --color-co-orange: #e97845;
+  --color-co-orange-dark: #b94f23;
+  --color-co-pale: #ffd8b8;
+  --color-co-sage: #a5ad91;
+  --color-co-sage-dark: #5f6b52;
+  --color-co-clay: #b5724a;
+  --color-co-line: #eadfd0;
+
+  --radius-co-sm: 12px;
+  --radius-co-md: 20px;
+  --radius-co-lg: 28px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-co-bg);
+  color: var(--color-co-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Keep motion subtle and purposeful, never decorative. */
+* {
+  transition-timing-function: ease;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-co-orange-dark);
+  outline-offset: 2px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
