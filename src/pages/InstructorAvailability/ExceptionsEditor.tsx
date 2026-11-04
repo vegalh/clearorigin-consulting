@@ -55,7 +55,7 @@ export function ExceptionsEditor({ instructorId, exceptions, onAdd, onRemove }: 
 
   return (
     <Card>
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-co-green">Date exceptions</h2>
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Date exceptions</h2>
 
       <div className="mt-4 space-y-2">
         {sorted.length === 0 && <p className="text-sm text-co-muted">No date exceptions yet.</p>}

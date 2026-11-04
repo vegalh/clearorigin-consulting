@@ -39,8 +39,10 @@ export function InstructorDashboardPage() {
     <div className="mx-auto max-w-5xl px-6 py-14">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-co-ink">Welcome back, {instructor.name.split(' ')[0]}</h1>
-          <p className="mt-2 text-sm text-co-muted">Here's what's coming up, acting as {instructor.name}.</p>
+          <h1 className="font-serif text-3xl font-medium tracking-tight text-co-ink">
+            Welcome back, {instructor.name.split(' ')[0]}
+          </h1>
+          <p className="mt-2 text-sm text-co-muted">Your Teaching Studio, acting as {instructor.name}.</p>
         </div>
         <ButtonLink to="/instructor/availability" variant="outline" size="sm">
           Edit availability
@@ -66,7 +68,7 @@ export function InstructorDashboardPage() {
       </div>
 
       <div className="mt-10">
-        <h2 className="text-xl font-semibold tracking-tight text-co-ink">Upcoming sessions</h2>
+        <h2 className="font-serif text-xl font-medium tracking-tight text-co-ink">Upcoming sessions</h2>
         <div className="mt-4 space-y-3">
           {upcoming.length === 0 && (
             <p className="rounded-co-md border border-dashed border-co-line bg-co-paper p-6 text-sm text-co-muted">

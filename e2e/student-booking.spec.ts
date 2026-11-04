@@ -3,11 +3,11 @@ import { test, expect } from '@playwright/test';
 test.describe('Student booking flow', () => {
   test('home -> instructors -> profile -> confirm -> success', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: /book real chinese/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /every conversation takes you somewhere/i })).toBeVisible();
 
-    await page.getByRole('link', { name: 'Find an instructor' }).first().click();
+    await page.getByRole('link', { name: 'Start a Conversation' }).click();
     await expect(page).toHaveURL(/\/instructors$/);
-    await expect(page.getByRole('heading', { name: 'Find an instructor' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Find your conversation partner.' })).toBeVisible();
 
     await page.getByRole('link', { name: /view profile & book/i }).first().click();
     await expect(page.getByRole('heading', { level: 2, name: '1. Choose a session type' })).toBeVisible();
@@ -19,19 +19,19 @@ test.describe('Student booking flow', () => {
 
     await page.getByRole('button', { name: 'Continue to confirm' }).click();
     await expect(page).toHaveURL(/\/booking\/confirm/);
-    await expect(page.getByRole('heading', { name: 'Confirm your session' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Your next conversation is almost here.' })).toBeVisible();
 
     await page.getByLabel('Full name').fill('Taylor Example');
     await page.getByLabel('Email').fill('taylor@example.com');
     await page.getByRole('button', { name: 'Confirm booking' }).click();
 
     await expect(page).toHaveURL(/\/booking\/success\//);
-    await expect(page.getByRole('heading', { name: 'Your session is booked' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: "You're all set." })).toBeVisible();
     await expect(page.getByRole('button', { name: /add to calendar/i })).toBeVisible();
 
     await page.getByRole('link', { name: 'View my bookings' }).click();
     await expect(page).toHaveURL(/\/bookings$/);
-    await expect(page.getByRole('heading', { name: 'My bookings' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'My Learning Space' })).toBeVisible();
   });
 
   test('language filter narrows the instructor list', async ({ page }) => {

@@ -13,7 +13,7 @@ const instructorNavLinks = [
 ];
 
 function navLinkClass(isActive: boolean): string {
-  return `text-sm font-medium transition-colors ${isActive ? 'text-co-green' : 'text-co-muted hover:text-co-ink'}`;
+  return `text-sm font-medium transition-colors ${isActive ? 'text-co-orange-dark' : 'text-co-muted hover:text-co-ink'}`;
 }
 
 export function Header() {
@@ -24,10 +24,10 @@ export function Header() {
     <header className="border-b border-co-line bg-co-paper">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
         <NavLink to="/" className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-co-green text-sm font-semibold text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-co-ink text-sm font-semibold text-co-bg">
             CO
           </span>
-          <span className="text-sm font-semibold tracking-tight text-co-ink">ClearOrigin</span>
+          <span className="font-serif text-base font-medium tracking-tight text-co-ink">ClearOrigin</span>
         </NavLink>
 
         <nav className="flex items-center gap-6">
@@ -38,13 +38,13 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
           {role === 'instructor' && (
             <select
               aria-label="Acting as instructor"
               value={currentInstructorId}
               onChange={(e) => setCurrentInstructorId(e.target.value)}
-              className="rounded-full border border-co-line bg-co-paper px-3 py-2 text-xs text-co-ink"
+              className="max-w-[9.5rem] rounded-full border border-co-line bg-co-paper px-3 py-2 text-xs text-co-ink sm:max-w-none"
             >
               {data.instructors.map((instructor) => (
                 <option key={instructor.id} value={instructor.id}>
@@ -59,7 +59,7 @@ export function Header() {
               type="button"
               onClick={() => setRole('student')}
               className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
-                role === 'student' ? 'bg-co-green text-white' : 'text-co-muted hover:text-co-ink'
+                role === 'student' ? 'bg-co-orange-dark text-white' : 'text-co-muted hover:text-co-ink'
               }`}
               aria-pressed={role === 'student'}
             >
@@ -69,7 +69,7 @@ export function Header() {
               type="button"
               onClick={() => setRole('instructor')}
               className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
-                role === 'instructor' ? 'bg-co-green text-white' : 'text-co-muted hover:text-co-ink'
+                role === 'instructor' ? 'bg-co-orange-dark text-white' : 'text-co-muted hover:text-co-ink'
               }`}
               aria-pressed={role === 'instructor'}
             >

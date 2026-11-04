@@ -12,7 +12,7 @@ export function Footer() {
             href="https://clearoriginconsulting.com"
             target="_blank"
             rel="noreferrer"
-            className="font-medium text-co-green underline underline-offset-2"
+            className="font-medium text-co-orange-dark underline underline-offset-2"
           >
             ClearOrigin Consulting
           </a>
@@ -26,7 +26,7 @@ export function Footer() {
               resetDemoData();
             }
           }}
-          className="shrink-0 rounded-full border border-co-line px-4 py-2 font-medium text-co-ink transition-colors hover:border-co-green hover:text-co-green"
+          className="shrink-0 rounded-full border border-co-line px-4 py-2 font-medium text-co-ink transition-colors hover:border-co-orange-dark hover:text-co-orange-dark"
         >
           Reset demo data
         </button>

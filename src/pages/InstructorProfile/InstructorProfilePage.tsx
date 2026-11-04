@@ -49,13 +49,13 @@ export function InstructorProfilePage() {
           >
             {instructor.avatarInitials}
           </span>
-          <h1 className="mt-4 text-xl font-semibold tracking-tight text-co-ink">{instructor.name}</h1>
+          <h1 className="mt-4 font-serif text-xl font-medium tracking-tight text-co-ink">{instructor.name}</h1>
           <p className="text-sm text-co-muted">{instructor.title}</p>
           <p className="mt-4 text-sm leading-relaxed text-co-muted">{instructor.bio}</p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
             {instructor.specialties.map((specialty) => (
-              <span key={specialty} className="rounded-full bg-co-pale px-2.5 py-1 text-[11px] font-medium text-co-green">
+              <span key={specialty} className="rounded-full bg-co-sage/25 px-2.5 py-1 text-[11px] font-medium text-co-sage-dark">
                 {specialty}
               </span>
             ))}
@@ -68,9 +68,9 @@ export function InstructorProfilePage() {
           </p>
         </Card>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <Card>
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-co-green">1. Choose a session type</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">1. Choose a session type</h2>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {availableSessionTypes.map((st) => (
                 <button
@@ -81,14 +81,14 @@ export function InstructorProfilePage() {
                     setSelectedSlot(null);
                   }}
                   className={`rounded-co-md border p-4 text-left transition-colors ${
-                    sessionType?.id === st.id ? 'border-co-green bg-co-pale/50' : 'border-co-line hover:border-co-green'
+                    sessionType?.id === st.id ? 'border-co-orange-dark bg-co-pale/40' : 'border-co-line hover:border-co-orange-dark'
                   }`}
                 >
                   <p className="font-medium text-co-ink">{st.name}</p>
                   <p className="mt-1 text-xs text-co-muted">{st.durationMinutes} minutes</p>
                   <p className="mt-2 text-xs leading-relaxed text-co-muted">{st.description}</p>
                   {typeof st.demoPriceUsd === 'number' && (
-                    <p className="mt-2 text-xs font-medium text-co-orange">
+                    <p className="mt-2 text-xs font-medium text-co-orange-dark">
                       {st.demoPriceUsd === 0 ? 'Free' : `$${st.demoPriceUsd} (demo price)`}
                     </p>
                   )}
@@ -99,7 +99,7 @@ export function InstructorProfilePage() {
 
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-co-green">2. Pick a time</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">2. Pick a time</h2>
               <label className="flex items-center gap-2 text-xs text-co-muted">
                 Showing times in
                 <select

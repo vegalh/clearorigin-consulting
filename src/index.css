@@ -1,22 +1,26 @@
 @import "tailwindcss";
 
 /*
- * Design tokens reused from the live clearoriginconsulting.com marketing
- * site: warm off-white surfaces, deep green primary, pale green accents,
- * warm orange highlight, tight editorial headings, pill-shaped buttons.
+ * "A Place for Conversation" design tokens — a warm, human palette built
+ * around paper surfaces, deep cocoa text, and a single saturated tangerine
+ * accent reserved for calls to action and selections (see
+ * docs/WARM_REDESIGN_PLAN.md for the full rationale and contrast checks).
  */
 @theme {
-  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "DM Sans", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Fraunces", "Noto Serif SC", Georgia, serif;
 
-  --color-co-bg: #f7f5ef;
-  --color-co-paper: #fffdf8;
-  --color-co-ink: #1c2521;
-  --color-co-muted: #65706b;
-  --color-co-green: #315c4d;
-  --color-co-green-dark: #22413690;
-  --color-co-pale: #dcebe3;
-  --color-co-line: #dfe2da;
-  --color-co-orange: #c87a45;
+  --color-co-bg: #fff8ef;
+  --color-co-paper: #fffefa;
+  --color-co-ink: #44332b;
+  --color-co-muted: #7d6a5a;
+  --color-co-orange: #e97845;
+  --color-co-orange-dark: #b94f23;
+  --color-co-pale: #ffd8b8;
+  --color-co-sage: #a5ad91;
+  --color-co-sage-dark: #5f6b52;
+  --color-co-clay: #b5724a;
+  --color-co-line: #eadfd0;
 
   --radius-co-sm: 12px;
   --radius-co-md: 20px;
@@ -40,7 +44,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-co-green);
+  outline: 2px solid var(--color-co-orange-dark);
   outline-offset: 2px;
 }
 

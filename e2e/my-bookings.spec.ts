@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('My Bookings - cancel & reschedule (seeded demo data)', () => {
   test('shows seeded bookings split across tabs', async ({ page }) => {
     await page.goto('/bookings');
-    await expect(page.getByRole('heading', { name: 'My bookings' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'My Learning Space' })).toBeVisible();
 
     // Seeded demo data gives student-alex exactly one upcoming, one past
     // (completed), and one cancelled booking.

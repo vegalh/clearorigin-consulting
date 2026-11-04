@@ -61,7 +61,7 @@ export function WeeklyScheduleEditor({
 
   return (
     <Card>
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-co-green">Weekly recurring schedule</h2>
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Weekly recurring schedule</h2>
       <div className="mt-4 space-y-3">
         {rows.map((row) => (
           <div key={row.weekday} className="flex flex-wrap items-center gap-3 border-b border-co-line pb-3 last:border-0">
@@ -99,7 +99,7 @@ export function WeeklyScheduleEditor({
         <Button variant="primary" size="sm" onClick={handleSave}>
           Save weekly schedule
         </Button>
-        {saved && <span className="text-xs font-medium text-co-green">Saved</span>}
+        {saved && <span className="text-xs font-medium text-co-sage-dark">Saved</span>}
       </div>
     </Card>
   );

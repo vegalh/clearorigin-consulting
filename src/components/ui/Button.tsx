@@ -8,10 +8,10 @@ const base =
   'inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-tight transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
 
 const variantClasses: Record<Variant, string> = {
-  primary: 'bg-co-green text-white hover:bg-co-ink',
-  secondary: 'bg-co-pale text-co-green hover:bg-co-line',
-  outline: 'border border-co-line text-co-ink hover:border-co-green hover:text-co-green bg-transparent',
-  ghost: 'text-co-ink hover:bg-co-pale',
+  primary: 'bg-co-orange-dark text-white hover:bg-co-ink',
+  secondary: 'bg-co-pale text-co-orange-dark hover:bg-co-pale/70',
+  outline: 'border border-co-line text-co-ink hover:border-co-orange-dark hover:text-co-orange-dark bg-transparent',
+  ghost: 'text-co-ink hover:bg-co-pale/50',
 };
 
 const sizeClasses: Record<Size, string> = {

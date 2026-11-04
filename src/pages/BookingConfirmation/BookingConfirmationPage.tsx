@@ -64,11 +64,13 @@ export function BookingConfirmationPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-14">
-      <h1 className="text-3xl font-semibold tracking-tight text-co-ink">Confirm your session</h1>
+      <h1 className="font-serif text-3xl font-medium tracking-tight text-co-ink">
+        Your next conversation is almost here.
+      </h1>
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.3fr]">
         <Card>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-co-green">Session summary</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Session summary</h2>
           <div className="mt-4 space-y-3 text-sm">
             <p className="font-medium text-co-ink">{instructor.name}</p>
             <p className="text-co-muted">{sessionType.name} &middot; {sessionType.durationMinutes} min</p>
@@ -76,7 +78,7 @@ export function BookingConfirmationPage() {
             <p className="text-co-ink">{formatDisplayTimeRange(startUtc, endUtc, viewerTimezone)}</p>
             <p className="text-xs text-co-muted">Times shown in {viewerTimezone.replace('_', ' ')}</p>
             {typeof sessionType.demoPriceUsd === 'number' && (
-              <p className="text-xs font-medium text-co-orange">
+              <p className="text-xs font-medium text-co-orange-dark">
                 {sessionType.demoPriceUsd === 0 ? 'Free' : `$${sessionType.demoPriceUsd} (demo price)`}
               </p>
             )}
@@ -132,7 +134,7 @@ export function BookingConfirmationPage() {
                   <label
                     key={option.id}
                     className={`flex-1 cursor-pointer rounded-co-sm border px-3 py-2 text-center text-sm transition-colors ${
-                      meetingProvider === option.id ? 'border-co-green bg-co-pale/50 text-co-green' : 'border-co-line text-co-ink'
+                      meetingProvider === option.id ? 'border-co-orange-dark bg-co-pale/40 text-co-orange-dark' : 'border-co-line text-co-ink'
                     }`}
                   >
                     <input

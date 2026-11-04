@@ -46,8 +46,7 @@ export function SlotPicker({ slots, timezone, selected, onSelect }: SlotPickerPr
   if (dayGroups.length === 0) {
     return (
       <p className="rounded-co-md border border-dashed border-co-line bg-co-paper p-6 text-sm text-co-muted">
-        No upcoming availability found for this session type right now. Please check back later or choose a
-        different session length.
+        No openings for this session type right now. Try another session length, or check back soon.
       </p>
     );
   }
@@ -68,8 +67,8 @@ export function SlotPicker({ slots, timezone, selected, onSelect }: SlotPickerPr
               onClick={() => setSelectedDate(group.dateStr)}
               className={`flex min-w-[64px] flex-col items-center rounded-co-md border px-3 py-2 text-xs transition-colors ${
                 isActive
-                  ? 'border-co-green bg-co-green text-white'
-                  : 'border-co-line bg-co-paper text-co-ink hover:border-co-green'
+                  ? 'border-co-orange-dark bg-co-orange-dark text-white'
+                  : 'border-co-line bg-co-paper text-co-ink hover:border-co-orange-dark'
               }`}
             >
               <span className="font-medium">{weekday}</span>
@@ -90,8 +89,8 @@ export function SlotPicker({ slots, timezone, selected, onSelect }: SlotPickerPr
               onClick={() => onSelect(slot)}
               className={`rounded-co-sm border px-3 py-2 text-sm font-medium transition-colors ${
                 isSelected
-                  ? 'border-co-green bg-co-green text-white'
-                  : 'border-co-line bg-co-paper text-co-ink hover:border-co-green'
+                  ? 'border-co-orange-dark bg-co-orange-dark text-white'
+                  : 'border-co-line bg-co-paper text-co-ink hover:border-co-orange-dark'
               }`}
             >
               {formatDisplayTime(slot.startUtc, timezone)}

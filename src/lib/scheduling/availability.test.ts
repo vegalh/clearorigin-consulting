@@ -8,7 +8,7 @@ const instructor: Instructor = {
   name: 'Test Instructor',
   title: 'Test Coach',
   avatarInitials: 'TI',
-  avatarColorClass: 'bg-co-green',
+  avatarColorClass: 'bg-co-sage-dark',
   languages: ['English'],
   specialties: ['Testing'],
   bio: 'A fixture instructor used only in tests.',
