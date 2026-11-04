@@ -5,6 +5,7 @@ import { useAppData } from '@/state/AppDataContext';
 import { useAvailableSlots } from '@/hooks/useAvailableSlots';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 import { SlotPicker } from '@/components/booking/SlotPicker';
 import { supportedTimezones } from '@/lib/dates/format';
 
@@ -41,8 +42,8 @@ export function InstructorProfilePage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-14">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr]">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <span
             className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-semibold text-white ${instructor.avatarColorClass}`}
@@ -68,7 +69,7 @@ export function InstructorProfilePage() {
           </p>
         </Card>
 
-        <div className="min-w-0 space-y-6">
+        <div className="min-w-0 space-y-4 sm:space-y-6">
           <Card>
             <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">1. Choose a session type</h2>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -100,19 +101,20 @@ export function InstructorProfilePage() {
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">2. Pick a time</h2>
-              <label className="flex items-center gap-2 text-xs text-co-muted">
-                Showing times in
-                <select
+              <label className="flex w-full min-w-0 items-center gap-2 text-xs text-co-muted sm:w-auto">
+                <span className="shrink-0">Showing times in</span>
+                <Select
+                  size="sm"
                   value={viewerTimezone}
                   onChange={(e) => setViewerTimezone(e.target.value)}
-                  className="rounded-full border border-co-line bg-co-paper px-2 py-1 text-xs text-co-ink"
+                  wrapperClassName="flex-1 sm:w-56 sm:flex-none"
                 >
                   {supportedTimezones().map((tz) => (
                     <option key={tz} value={tz}>
                       {tz.replace('_', ' ')}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </div>
 

@@ -3,6 +3,8 @@ import { Trash2 } from 'lucide-react';
 import type { AvailabilityException, AvailabilityExceptionType } from '@/types';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
+import { inputClass } from '@/components/ui/fieldStyles';
 
 const exceptionTypeLabels: Record<AvailabilityExceptionType, string> = {
   blocked_day: 'Block the whole day',
@@ -62,10 +64,10 @@ export function ExceptionsEditor({ instructorId, exceptions, onAdd, onRemove }: 
         {sorted.map((exception) => (
           <div
             key={exception.id}
-            className="flex items-center justify-between gap-3 rounded-co-sm border border-co-line px-3 py-2 text-sm"
+            className="flex items-start justify-between gap-3 rounded-co-sm border border-co-line px-3 py-2 text-sm"
           >
-            <div>
-              <p className="font-medium text-co-ink">
+            <div className="min-w-0">
+              <p className="break-words font-medium text-co-ink">
                 {exception.date} &mdash; {exceptionTypeLabels[exception.type]}
               </p>
               {exception.startTime && exception.endTime && (
@@ -79,7 +81,7 @@ export function ExceptionsEditor({ instructorId, exceptions, onAdd, onRemove }: 
               type="button"
               aria-label="Remove exception"
               onClick={() => onRemove(exception.id)}
-              className="text-co-muted hover:text-red-600"
+              className="-m-1.5 shrink-0 rounded-full p-1.5 text-co-muted hover:bg-co-pale/50 hover:text-red-600"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -89,39 +91,45 @@ export function ExceptionsEditor({ instructorId, exceptions, onAdd, onRemove }: 
 
       <div className="mt-5 space-y-3 border-t border-co-line pt-4">
         <p className="text-xs font-medium text-co-muted">Add an exception</p>
-        <div className="flex flex-wrap gap-3">
-          <select
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Select
+            aria-label="Exception type"
+            variant="field"
             value={type}
             onChange={(e) => setType(e.target.value as AvailabilityExceptionType)}
-            className="rounded-co-sm border border-co-line bg-co-paper px-2 py-1.5 text-sm"
+            wrapperClassName="w-full"
           >
             {Object.entries(exceptionTypeLabels).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
           <input
             type="date"
+            aria-label="Exception date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="rounded-co-sm border border-co-line bg-co-paper px-2 py-1.5 text-sm"
+            className={`${inputClass} w-full min-w-0`}
           />
           {type !== 'blocked_day' && (
-            <>
+            <div className="flex items-center gap-2 sm:col-span-2">
               <input
                 type="time"
+                aria-label="Start time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="rounded-co-sm border border-co-line bg-co-paper px-2 py-1.5 text-sm"
+                className={`${inputClass} min-w-0 flex-1`}
               />
+              <span className="text-sm text-co-muted">to</span>
               <input
                 type="time"
+                aria-label="End time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="rounded-co-sm border border-co-line bg-co-paper px-2 py-1.5 text-sm"
+                className={`${inputClass} min-w-0 flex-1`}
               />
-            </>
+            </div>
           )}
         </div>
         <input
@@ -129,10 +137,10 @@ export function ExceptionsEditor({ instructorId, exceptions, onAdd, onRemove }: 
           placeholder="Note (optional)"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="w-full rounded-co-sm border border-co-line bg-co-paper px-3 py-1.5 text-sm"
+          className={`${inputClass} w-full`}
         />
         {error && <p className="text-xs text-red-600">{error}</p>}
-        <Button variant="secondary" size="sm" onClick={handleAdd}>
+        <Button variant="secondary" size="sm" onClick={handleAdd} className="w-full sm:w-auto">
           Add exception
         </Button>
       </div>

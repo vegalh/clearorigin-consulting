@@ -37,19 +37,19 @@ export function MyBookingsPage() {
   const currentStudent = data.students.find((s) => s.id === currentStudentId);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-14">
-      <h1 className="font-serif text-3xl font-medium tracking-tight text-co-ink">My Learning Space</h1>
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <h1 className="font-serif text-2xl font-medium tracking-tight sm:text-3xl text-co-ink">My Learning Space</h1>
       <p className="mt-2 text-sm text-co-muted">
         Showing demo bookings for {currentStudent?.fullName ?? 'this browser'}.
       </p>
 
-      <div className="mt-6 flex gap-2 rounded-full border border-co-line p-1 text-sm w-fit">
+      <div className="mt-6 flex w-full gap-1 rounded-full border border-co-line p-1 text-xs sm:w-fit sm:gap-2 sm:text-sm">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id)}
-            className={`rounded-full px-4 py-2 font-medium transition-colors ${
+            className={`flex-1 whitespace-nowrap rounded-full px-2 py-2 font-medium transition-colors sm:flex-none sm:px-4 ${
               activeTab === tab.id ? 'bg-co-orange-dark text-white' : 'text-co-muted hover:text-co-ink'
             }`}
           >

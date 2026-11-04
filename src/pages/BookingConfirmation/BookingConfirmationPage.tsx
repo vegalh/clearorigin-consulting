@@ -4,6 +4,7 @@ import type { MeetingProvider } from '@/types';
 import { useAppData } from '@/state/AppDataContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { inputClass } from '@/components/ui/fieldStyles';
 import { formatDisplayDate, formatDisplayTimeRange } from '@/lib/dates/format';
 import { validateStudentInfo, hasValidationErrors } from '@/lib/validation/booking';
 
@@ -63,13 +64,13 @@ export function BookingConfirmationPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-14">
-      <h1 className="font-serif text-3xl font-medium tracking-tight text-co-ink">
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <h1 className="font-serif text-2xl font-medium tracking-tight sm:text-3xl text-co-ink">
         Your next conversation is almost here.
       </h1>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.3fr]">
-        <Card>
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:gap-6 md:grid-cols-[1fr_1.3fr]">
+        <Card className="h-fit">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-co-sage-dark">Session summary</h2>
           <div className="mt-4 space-y-3 text-sm">
             <p className="font-medium text-co-ink">{instructor.name}</p>
@@ -95,7 +96,7 @@ export function BookingConfirmationPage() {
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="mt-1 w-full rounded-co-sm border border-co-line bg-co-paper px-3 py-2 text-sm text-co-ink"
+                className={`${inputClass} mt-1 w-full`}
               />
               {touched && errors.fullName && <p className="mt-1 text-xs text-red-600">{errors.fullName}</p>}
             </div>
@@ -109,7 +110,7 @@ export function BookingConfirmationPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-co-sm border border-co-line bg-co-paper px-3 py-2 text-sm text-co-ink"
+                className={`${inputClass} mt-1 w-full`}
               />
               {touched && errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
             </div>
@@ -123,7 +124,7 @@ export function BookingConfirmationPage() {
                 value={learningGoal}
                 onChange={(e) => setLearningGoal(e.target.value)}
                 rows={3}
-                className="mt-1 w-full rounded-co-sm border border-co-line bg-co-paper px-3 py-2 text-sm text-co-ink"
+                className={`${inputClass} mt-1 w-full`}
               />
             </div>
 
